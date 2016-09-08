@@ -1,7 +1,7 @@
 import random
 
 from xos.logger import Logger, logging
-from core.models.netw import *
+from services.metronetwork.models import *
 from synchronizers.metronetwork.providers.metronetworkprovider import MetroNetworkProvider
 
 logger = Logger(level=logging.INFO)

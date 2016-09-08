@@ -1,8 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import serializers, filters, status
 from api.xosapi_helpers import PlusModelSerializer, XOSViewSet, ReadOnlyField
-from services.metronetwork.models import MetroNetworkService
-from core.models.netw import NetworkEdgePort, NetworkEdgeToEdgePointConnection
+from services.metronetwork.models import MetroNetworkService, NetworkEdgePort, NetworkEdgeToEdgePointConnection
 from django.core.exceptions import ObjectDoesNotExist
 from django.core import serializers as jsonserializer
 

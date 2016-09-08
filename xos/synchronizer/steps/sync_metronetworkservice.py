@@ -2,8 +2,7 @@ import os
 import sys
 
 from synchronizers.base.syncstep import SyncStep
-from core.models.netw import *
-from services.metronetwork.models import MetroNetworkService
+from services.metronetwork.models import *
 from xos.logger import Logger, logging
 from synchronizers.metronetwork.providers.providerfactory import ProviderFactory
 

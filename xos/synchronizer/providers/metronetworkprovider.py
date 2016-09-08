@@ -1,5 +1,5 @@
 from xos.logger import Logger, logging
-from core.models.netw import *
+from services.metronetwork.models import *
 
 logger = Logger(level=logging.INFO)
 
