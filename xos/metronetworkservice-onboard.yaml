@@ -18,3 +18,5 @@ topology_template:
           rest_service: api/service/metronetworkservice.py
           synchronizer: synchronizer/manifest
           synchronizer_run: metronetworkervice-synchronizer.py
+          tosca_resource: tosca/resources/metronetservice.py
+          tosca_custom_types: metronet.yaml
