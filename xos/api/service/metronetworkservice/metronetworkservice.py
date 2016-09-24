@@ -22,7 +22,7 @@ class MetroNetworkServiceSerializer(PlusModelSerializer):
 
 class MetroNetworkServiceViewSet(XOSViewSet):
     base_name = "metronetworkservice"
-    method_name = "metronetworkservice/metronetwork"
+    method_name = "metronetwork"
     method_kind = "viewset"
     queryset = MetroNetworkService.get_service_objects().all()
     serializer_class = MetroNetworkServiceSerializer
@@ -65,7 +65,7 @@ class NetworkEdgePortSerializer(PlusModelSerializer):
 
 class NetworkEdgePortViewSet(XOSViewSet):
     base_name = "SCA_ETH_FPP_UNI_N"
-    method_name = "metronetworkservice/SCA_ETH_FPP_UNI_N"
+    method_name = "SCA_ETH_FPP_UNI_N"
     method_kind = "viewset"
     queryset = NetworkEdgePort.objects.all()
     serializer_class = NetworkEdgePortSerializer
@@ -106,7 +106,7 @@ class NetworkEdgeToEdgePointConnectionSerializer(PlusModelSerializer):
 
 class NetworkEdgeToEdgePointConnectionViewSet(XOSViewSet):
     base_name = "SCA_ETH_FDFr_EC"
-    method_name = "metronetworkservice/SCA_ETH_FDFr_EC"
+    method_name = "SCA_ETH_FDFr_EC"
     method_kind = "viewset"
     queryset = NetworkEdgeToEdgePointConnection.objects.all()
     serializer_class = NetworkEdgeToEdgePointConnectionSerializer
