@@ -81,6 +81,7 @@ class NetworkDevice(PlCoreBase):
     # serialNumber = models.CharField(unique=True, verbose_name="Serial Number", max_length=256, editable=False)
     # chassisId = models.CharField(unique=False, verbose_name="Chassis ID", max_length=256, editable=False)
 
+    name = models.CharField(max_length=20, help_text="Device friendly name", null=True, blank=True)
     restCtrlUrl = models.CharField(unique=True,
                                verbose_name="RestCtrlURL",
                                max_length=256,
