@@ -79,3 +79,40 @@ node_types:
                 type: string
                 required: false
                 description: Version number of Service.
+
+    tosca.nodes.MetroNetworkDevice:
+        derived_from: tosca.nodes.Root
+        description: >
+            CORD: The Metro Network Device.
+        properties:
+            no-delete:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to delete this object
+            no-create:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to create this object
+            no-update:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to update this object
+            replaces:
+                type: string
+                required: false
+                descrption: Replaces/renames this object
+            restCtrlUrl:
+                type: string
+                required: true
+            username:
+                type: string
+                required: true
+            password:
+                type: string
+                required: true
+            administrativeState:
+                type: string
+                required: true
+            authType:
+                type: string
+                required: false

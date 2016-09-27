@@ -16,3 +16,25 @@ node_types:
         properties:
             xos_base_props
             xos_base_service_props
+
+    tosca.nodes.MetroNetworkDevice:
+        derived_from: tosca.nodes.Root
+        description: >
+            CORD: The Metro Network Device.
+        properties:
+            xos_base_props
+            restCtrlUrl:
+                type: string
+                required: true
+            username:
+                type: string
+                required: true
+            password:
+                type: string
+                required: true
+            administrativeState:
+                type: string
+                required: true
+            authType:
+                type: string
+                required: false
