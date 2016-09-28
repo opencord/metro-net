@@ -7,7 +7,7 @@ include(macros.m4)
 
 node_types:
     
-    tosca.nodes.MetroNetworkService:
+    tosca.nodes.MetroNetworkSystem:
         derived_from: tosca.nodes.Root
         description: >
             CORD: The Metro Network Service.
@@ -15,7 +15,13 @@ node_types:
             xos_base_service_caps
         properties:
             xos_base_props
-            xos_base_service_props
+            administrativeState:
+                type: string
+                required: true
+            restUrl:
+                type: string
+                required: false
+
 
     tosca.nodes.MetroNetworkDevice:
         derived_from: tosca.nodes.Root
@@ -38,3 +44,6 @@ node_types:
             authType:
                 type: string
                 required: false
+            id:
+                type: string
+                required: true

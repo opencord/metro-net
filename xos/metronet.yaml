@@ -22,7 +22,7 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 
 node_types:
     
-    tosca.nodes.MetroNetworkService:
+    tosca.nodes.MetroNetworkSystem:
         derived_from: tosca.nodes.Root
         description: >
             CORD: The Metro Network Service.
@@ -48,37 +48,13 @@ node_types:
                 type: string
                 required: false
                 descrption: Replaces/renames this object
-            kind:
+            administrativeState:
                 type: string
-                default: generic
-                description: Type of service.
-            view_url:
-                type: string
-                required: false
-                description: URL to follow when icon is clicked in the Service Directory.
-            icon_url:
+                required: true
+            restUrl:
                 type: string
                 required: false
-                description: ICON to display in the Service Directory.
-            enabled:
-                type: boolean
-                default: true
-            published:
-                type: boolean
-                default: true
-                description: If True then display this Service in the Service Directory.
-            public_key:
-                type: string
-                required: false
-                description: Public key to install into Instances to allows Services to SSH into them.
-            private_key_fn:
-                type: string
-                required: false
-                description: Location of private key file
-            versionNumber:
-                type: string
-                required: false
-                description: Version number of Service.
+
 
     tosca.nodes.MetroNetworkDevice:
         derived_from: tosca.nodes.Root
@@ -116,3 +92,6 @@ node_types:
             authType:
                 type: string
                 required: false
+            id:
+                type: string
+                required: true

@@ -5,19 +5,18 @@ import tempfile
 sys.path.append("/opt/tosca")
 from translator.toscalib.tosca_template import ToscaTemplate
 
-from services.metronetwork.models import MetroNetworkService, NetworkDevice
+from services.metronetwork.models import *
 
 from service import XOSService
 from xosresource import XOSResource
 
 
-class XOSMetroNetworkService(XOSService):
-    provides = "tosca.nodes.MetroNetworkService"
-    xos_model = MetroNetworkService
-    copyin_props = ["view_url", "icon_url", "enabled", "published", "versionNumber"]
-
+class XOSMetroNetworkSystem(XOSResource):
+    provides = "tosca.nodes.MetroNetworkSystem"
+    xos_model = MetroNetworkSystem
+    copyin_props = ["name", "administrativeState", "restUrl"]
 
 class MetroNetworkDevice(XOSResource):
     provides = "tosca.nodes.MetroNetworkDevice"
     xos_model = NetworkDevice
-    copyin_props = ["name", "administrativeState", "username", "password", "authType", "restCtrlUrl"]
+    copyin_props = ["id", "name", "administrativeState", "username", "password", "authType", "restCtrlUrl"]
