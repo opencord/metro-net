@@ -6,6 +6,12 @@ providers/metronetworkrestprovider.py
 providers/providerfactory.py
 providers/__init__.py
 providers/metronetworkprovider.py
+invokers/invoker.py
+invokers/invokerfactory.py
+invokers/networkedgetoedgepointinvoker.py
+invokers/networkedgetomultipointinvoker.py
+invokers/networkmultipointtomultipointinvoker.py
+invokers/__init__.py
 run_devel.sh
 metronetwork-synchronizer-devel.py
 manifest

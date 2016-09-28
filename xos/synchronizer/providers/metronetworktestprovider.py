@@ -1,4 +1,5 @@
 import random
+import json
 
 from xos.logger import Logger, logging
 from services.metronetwork.models import *
@@ -13,7 +14,41 @@ class MetroNetworkTestProvider(MetroNetworkProvider):
 
     # Method for retrieving all network ports from the backend system
     def get_network_ports(self):
-        # Our Test Network Consists of 6 ports - two on each of three internal switches
+        #
+        # Our Test Network Consists of three NetworkDevices (which correspond to ONOS instances):
+        #
+        #                    ONOS1-CORDPOD1
+        #                    ONOS2-MetroNetwork
+        #                    ONOW3-CORDPOD2
+        #
+        #
+        #    Uni-NetworkEdgePort3--
+        #    Uni-NetworkEdgePort11-
+        #    Uni-NetworkEdgePort5--ONOS1-CORDPOD1-NetworkPort6
+        #            NetworkPort4--                     |
+        #                                        NetworkPort1-ONOS2-MetroNetwork
+        #                                        NetworkPort2-
+        #                                             |
+        #    Uni-NetworkEdgePort7--ONOS3-CORDPOD2-NetworkPort10
+        #    Uni-NetworkEdgePort9--
+        #    Uni-NetworkEdgePort12-
+        #        NetworkPort8--
+        #
+        #  Note: NetworkPorts can be endpoints of Interlinks and NetworkPointToPointConnections
+        #              they can be seem as a simple port.
+        #        NetworkEdgePorts are UNIs in the network, so are specicially user facing.
+        #
+        #
+        # InterLinks - Port1 - Port6
+        #              Port2 - Port10
+        #
+        # NetworkPointToPointConnections: Port1 - Port2
+        #                                 Port4 - Port6
+        #                                 Port8 - Port10
+        #
+        # NetworkEdgeToEdgePointConnections: Port3 - Port7
+        #
+        # NetworkMultipointConnection: Port11 - Port5 - Port9 - Port12
 
         objs = []
 
@@ -21,107 +56,110 @@ class MetroNetworkTestProvider(MetroNetworkProvider):
         if self.networkdevice.id != 'TestMetroNet':
             return objs
 
-        # Ok - in the test class we cheat and create the adjunct NetworkDevices Devices
+        # Ok - in the test class we cheat and create one NetworkDevice with 8 NetworkEdgePorts
         device1 = NetworkDevice()
-        device1.id = 'TestCORD1Net'
+        device1.id = 'TestCORDNet'
         device1.administrativeState = 'enabled'
         device1.restCtrlUrl = 'testCordPod1.onlab.net:8000'
         device1.username = 'karaf'
         device1.password = 'karaf'
         objs.append(device1)
 
-        device2 = NetworkDevice()
-        device2.id = 'TestCORD2Net'
-        device2.administrativeState = 'enabled'
-        device2.restCtrlUrl = 'testCordPod2.onlabl.net:8000'
-        device2.username = 'karaf'
-        device2.password = 'karaf'
-        objs.append(device2)
-
-        # Ok - here we go creating ports - its 4 ports for each CORD Pod and 2 for MetroNetwork
-
-        # Metro Network Switch
-        port1 = NetworkPort()
-        port1.element = self.networkdevice
-        port1.pid = self.networkdevice.id + "." + "of:000000001/1"
+        port1 = NetworkEdgePort()
+        port1.element = device1
+        port1.pid = device1.id + "." + "of:000000001/1"
+        port1.bwpCfgCbs = 1000000
+        port1.bwpCfgEbs = 1000000
+        port1.bwpCfgEir = 1000000
+        port1.bwpCfgCir = 1000000
+        port1.location = "San Francisco"
+        port1.name = "Central Office 1"
+        port1.latlng = "[-122.419416, 37.774929]"
         objs.append(port1)
 
-        port2 = NetworkPort()
-        port2.element = self.networkdevice
-        port2.pid = self.networkdevice.id + "." + "of:000000001/2"
+        port2 = NetworkEdgePort()
+        port2.element = device1
+        port2.pid = device1.id + "." + "of:000000001/2"
+        port2.bwpCfgCbs = 1000000
+        port2.bwpCfgEbs = 1000000
+        port2.bwpCfgEir = 1000000
+        port2.bwpCfgCir = 1000000
+        port2.location = "San Jose"
+        port2.name = "Central Office 2"
+        port2.latlng = "[-121.886329, 37.338208]"
         objs.append(port2)
 
-        # CORD POD1
-        cordpod1device = NetworkDevice()
-        cordpod1device.id = 'TestCORD1Net'
-
         port3 = NetworkEdgePort()
-        port3.element = cordpod1device
-        port3.pid = cordpod1device.id + "." + "of:000000001/1"
+        port3.element = device1
+        port3.pid = device1.id + "." + "of:000000001/3"
         port3.bwpCfgCbs = 1000000
         port3.bwpCfgEbs = 1000000
         port3.bwpCfgEir = 1000000
         port3.bwpCfgCir = 1000000
-        port3.bwpCfgCir = 1000000
+        port3.location = "Palo Alto"
+        port3.name = "Central Office 3"
+        port3.latlng = "[-122.143019, 37.441883]"
         objs.append(port3)
 
-        port4 = NetworkPort()
-        port4.element = cordpod1device
-        port4.pid = cordpod1device.id + "." + "of:000000001/2"
+        port4 = NetworkEdgePort()
+        port4.element = device1
+        port4.pid = device1.id + "." + "of:000000001/4"
+        port4.bwpCfgCbs = 1000000
+        port4.bwpCfgEbs = 1000000
+        port4.bwpCfgEir = 1000000
+        port4.bwpCfgCir = 1000000
+        port4.location = "Oakland"
+        port4.name = "Central Office 4"
+        port4.latlng = "[-122.271114, 37.804364]"
         objs.append(port4)
 
-        # Internal Switch 3
         port5 = NetworkEdgePort()
-        port5.element = cordpod1device
-        port5.pid = cordpod1device.id + "." + "of:000000001/3"
+        port5.element = device1
+        port5.pid = device1.id + "." + "of:000000001/5"
         port5.bwpCfgCbs = 1000000
         port5.bwpCfgEbs = 1000000
         port5.bwpCfgEir = 1000000
         port5.bwpCfgCir = 1000000
-        port5.bwpCfgCir = 1000000
+        port5.location = "San Rafael"
+        port5.name = "Central Office 5"
+        port5.latlng = "[-122.531087, 37.973535]"
         objs.append(port5)
 
-        port6 = NetworkPort()
-        port6.element = cordpod1device
-        port6.capacity = 1000000000
-        port6.usedCapacity = 1000000000
-        port6.pid = cordpod1device.id + "." + "of:000000001/4"
+        port6 = NetworkEdgePort()
+        port6.element = device1
+        port6.pid = device1.id + "." + "of:000000001/6"
+        port6.bwpCfgCbs = 1000000
+        port6.bwpCfgEbs = 1000000
+        port6.bwpCfgEir = 1000000
+        port6.bwpCfgCir = 1000000
+        port6.location = "San Mateo"
+        port6.name = "Central Office 6"
+        port6.latlng = "[-122.325525, 37.562992]"
         objs.append(port6)
 
-        # CORD POD2
-        cordpod2device = NetworkDevice()
-        cordpod2device.id = 'TestCORD2Net'
-
         port7 = NetworkEdgePort()
-        port7.element = cordpod2device
-        port7.pid = cordpod2device.id + "." + "of:000000001/1"
+        port7.element = device1
+        port7.pid = device1.id + "." + "of:000000001/7"
         port7.bwpCfgCbs = 1000000
         port7.bwpCfgEbs = 1000000
         port7.bwpCfgEir = 1000000
         port7.bwpCfgCir = 1000000
-        port7.bwpCfgCir = 1000000
+        port7.location = "Hayward"
+        port7.name = "Central Office 7"
+        port7.latlng = "[-122.080796, 37.668821]"
         objs.append(port7)
 
-        port8 = NetworkPort()
-        port8.element = cordpod2device
-        port8.pid = cordpod2device.id + "." + "of:000000001/2"
+        port8 = NetworkEdgePort()
+        port8.element = device1
+        port8.pid = device1.id + "." + "of:000000001/8"
+        port8.bwpCfgCbs = 1000000
+        port8.bwpCfgEbs = 1000000
+        port8.bwpCfgEir = 1000000
+        port8.bwpCfgCir = 1000000
+        port8.location = "Fremont"
+        port8.name = "Central Office 8"
+        port8.latlng = "[-121.988572, 37.548270]"
         objs.append(port8)
-
-        # Internal Switch 3
-        port9 = NetworkEdgePort()
-        port9.element = cordpod2device
-        port9.pid = cordpod2device.id + "." + "of:000000001/3"
-        port9.bwpCfgCbs = 1000000
-        port9.bwpCfgEbs = 1000000
-        port9.bwpCfgEir = 1000000
-        port9.bwpCfgCir = 1000000
-        port9.bwpCfgCir = 1000000
-        objs.append(port9)
-
-        port10 = NetworkPort()
-        port10.element = cordpod2device
-        port10.pid = cordpod2device.id + "." + "of:000000001/4"
-        objs.append(port10)
 
         return objs
 
@@ -140,12 +178,8 @@ class MetroNetworkTestProvider(MetroNetworkProvider):
 
         # Ok - in the test class we cheat and take down the adjunct Fake NetworkDevices Devices
         device1 = NetworkDevice()
-        device1.id = 'TestCORD1Net'
+        device1.id = 'TestCORDNet'
         objs.append(device1)
-
-        device2 = NetworkDevice()
-        device2.id = 'TestCORD2Net'
-        objs.append(device2)
 
         return objs
 
@@ -153,81 +187,58 @@ class MetroNetworkTestProvider(MetroNetworkProvider):
 
         objs = []
 
-        # Metro Link Connectivity object - Point to Point
-        metronetconnectivity = NetworkPointToPointConnection()
-        port1 = NetworkPort()
-        port1.pid = self.networkdevice.id + "." + "of:000000001/1"
-        port2 = NetworkPort()
-        port2.pid = self.networkdevice.id + "." + "of:000000001/2"
-        metronetconnectivity.src = port1
-        metronetconnectivity.dest = port2
-        metronetconnectivity.type = 'direct'
-        metronetconnectivity.operstate = 'active'
-        metronetconnectivity.adminstate = 'enabled'
-        metronetconnectivity.sid = 'MetroNetworkPointToPointConnectivity_1'
-        objs.append(metronetconnectivity)
-
-        # CORDPOD1 Connectivity object - Point to Point
+        # Connectivity object - Point to Point
         cordpod1device = NetworkDevice()
-        cordpod1device.id = 'TestCORD1Net'
-
-        cordpod1connectivity = NetworkPointToPointConnection()
-        port6 = NetworkPort()
-        port6.pid = cordpod1device.id + "." + "of:000000001/4"
-        port4 = NetworkPort()
-        port4.pid = cordpod1device.id + "." + "of:000000001/2"
-        cordpod1connectivity.src = port6
-        cordpod1connectivity.dest = port4
-        cordpod1connectivity.type = 'direct'
-        cordpod1connectivity.operstate = 'active'
-        cordpod1connectivity.adminstate = 'enabled'
-        cordpod1connectivity.sid = 'CordPod1PointToPointConnectivity_1'
-        objs.append(cordpod1connectivity)
-
-        # CORDPOD2 Connectivity object - Point to Point
-        cordpod2device = NetworkDevice()
-        cordpod2device.id = 'TestCORD2Net'
-
-        cordpod2connectivity = NetworkPointToPointConnection()
-        port8 = NetworkPort()
-        port8.pid = cordpod2device.id + "." + "of:000000001/2"
-        port10 = NetworkPort()
-        port10.pid = cordpod2device.id + "." + "of:000000001/4"
-        cordpod2connectivity.src = port10
-        cordpod2connectivity.dest = port8
-        cordpod2connectivity.type = 'direct'
-        cordpod2connectivity.operstate = 'active'
-        cordpod2connectivity.adminstate = 'enabled'
-        cordpod2connectivity.sid = 'CordPod2PointToPointConnectivity_1'
-        objs.append(cordpod2connectivity)
-
-        # InterLink object between CORDPOD1 and MetroNet
-        interlink1 = NetworkInterLink()
-        interlink1.src = port1
-        interlink1.dest = port6
-        interlink1.state = 'active'
-        objs.append(interlink1)
-
-        # InterLink object between CORDPOD2 and MetroNet
-        interlink2 = NetworkInterLink()
-        interlink2.src = port2
-        interlink2.dest = port10
-        interlink2.state = 'active'
-        objs.append(interlink2)
+        cordpod1device.id = 'TestCORDNet'
 
         # Edge to Edge Point Connectivity Objects
         edgetoedgeconnectivity = NetworkEdgeToEdgePointConnection()
-        port3 = NetworkEdgePort()
-        port3.pid = cordpod1device.id + "." + "of:000000001/1"
-        port7 = NetworkEdgePort()
-        port7.pid = cordpod2device.id + "." + "of:000000001/1"
-        edgetoedgeconnectivity.uni1 = port3
-        edgetoedgeconnectivity.uni2 = port7
+        edgetoedgeconnectivity.uni1_createbuffer = cordpod1device.id + "." + "of:000000001/1"
+        edgetoedgeconnectivity.uni2_createbuffer = cordpod1device.id + "." + "of:000000001/2"
         edgetoedgeconnectivity.type = 'direct'
         edgetoedgeconnectivity.operstate = 'active'
         edgetoedgeconnectivity.adminstate = 'enabled'
-        edgetoedgeconnectivity.sid = 'EdgePointToEdgePointConnectivity_1'
+        edgetoedgeconnectivity.sid = 'EdgeToEdgePointConnectivity_1'
         objs.append(edgetoedgeconnectivity)
+
+
+        # Multipoint to Multipoint Connectivity Objects
+        multipoint2multipointconnectivity=NetworkMultipointToMultipointConnection()
+        multipoint2multipointconnectivity.operstate = 'active'
+        multipoint2multipointconnectivity.adminstate = 'enabled'
+        multipoint2multipointconnectivity.type = 'ethernet'
+        multipoint2multipointconnectivity.sid = 'MultipointToMultipointConnectivity_1'
+
+        #
+        # Create JSON array for post-save behaviour
+        #
+        eps = []
+        eps.append(cordpod1device.id + "." + "of:000000001/3")
+        eps.append(cordpod1device.id + "." + "of:000000001/4")
+        eps.append(cordpod1device.id + "." + "of:000000001/5")
+
+        myjsonstr = {'eps': eps, 'foo':0, 'bar':0}
+        multipoint2multipointconnectivity.eps_createbuffer = json.dumps(myjsonstr)
+        objs.append(multipoint2multipointconnectivity)
+
+        # Edge to Multipoint Connectivity Objects
+        edge2multipointconnectivity = NetworkEdgeToMultipointConnection()
+        edge2multipointconnectivity.operstate = 'active'
+        edge2multipointconnectivity.adminstate = 'enabled'
+        edge2multipointconnectivity.type = 'ethernet'
+        edge2multipointconnectivity.sid = 'EdgeToMultipointConnectivity_1'
+        edge2multipointconnectivity.root_createbuffer = cordpod1device.id + "." + "of:000000001/7"
+        #
+        # Create JSON array for post-save behaviour
+        #
+        eps = []
+        eps.append(cordpod1device.id + "." + "of:000000001/6")
+        eps.append(cordpod1device.id + "." + "of:000000001/8")
+
+        myjsonstr = {'eps': eps, 'foo': 0, 'bar': 0}
+        edge2multipointconnectivity.eps_createbuffer = json.dumps(myjsonstr)
+        objs.append(edge2multipointconnectivity)
+
 
         return objs
 

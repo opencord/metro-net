@@ -6,15 +6,15 @@ from core.models import PlCoreBase
 
 METRONETWORK_KIND = "metronetwork"
 SERVICE_NAME = 'metronetwork'
-SERVICE_NAME_VERBOSE = 'Metro Network Service'
+SERVICE_NAME_ELINE_VERBOSE = 'E-Line Service'
+SERVICE_NAME_ELAN_VERBOSE = 'E-LAN Service'
+SERVICE_NAME_ETREE_VERBOSE = 'E-Tree Service'
 
-class MetroNetworkService(Service):
-
-    KIND = METRONETWORK_KIND
+class MetroNetworkSystem(PlCoreBase):
 
     class Meta:
-        app_label = SERVICE_NAME
-        verbose_name = SERVICE_NAME_VERBOSE
+        app_label = METRONETWORK_KIND
+        verbose_name = "Metro Network System"
 
     ADMINISTRATIVE_STATE = (
         ('enabled', 'Enabled'),
@@ -25,6 +25,15 @@ class MetroNetworkService(Service):
         ('active', 'Active'),
         ('inactive', 'Inactive')
     )
+
+    name = models.CharField(unique=True,
+                           verbose_name="Name",
+                           max_length=256,
+                           editable=True)
+
+    description = models.CharField(verbose_name="Description",
+                                   max_length=1024,
+                                   editable=True)
 
     restUrl = models.CharField(verbose_name="Rest URL",
                                max_length=256,
@@ -42,7 +51,7 @@ class MetroNetworkService(Service):
                                         editable=True)
 
     def __init__(self, *args, **kwargs):
-        super(MetroNetworkService, self).__init__(*args, **kwargs)
+        super(MetroNetworkSystem, self).__init__(*args, **kwargs)
 
     def getAdminstrativeState(self):
          return self.administrativeState
@@ -60,7 +69,8 @@ class MetroNetworkService(Service):
 class NetworkDevice(PlCoreBase):
 
     class Meta:
-        app_label = SERVICE_NAME
+        app_label = METRONETWORK_KIND
+        verbose_name = "Network Device"
 
     ADMINISTRATIVE_STATE = (
         ('enabled', 'Enabled'),
@@ -103,22 +113,11 @@ class NetworkDevice(PlCoreBase):
     def __init__(self, *args, **kwargs):
         super(NetworkDevice, self).__init__(*args, **kwargs)
 
-class NetworkPort(PlCoreBase):
-
-    class Meta:
-        app_label = SERVICE_NAME
-
-    element = models.ForeignKey(NetworkDevice, on_delete=models.CASCADE)
-    id = models.AutoField(verbose_name="id", primary_key=True, editable=False)
-    pid = models.CharField(unique=True, verbose_name="Port ID", max_length=256, editable=False)
-
-    def __init__(self, *args, **kwargs):
-        super(NetworkPort, self).__init__(*args, **kwargs)
-
 class NetworkEdgePort(PlCoreBase):
 
     class Meta:
-        app_label = SERVICE_NAME
+        app_label = METRONETWORK_KIND
+        verbose_name = "Network Edge Port"
 
     element = models.ForeignKey(NetworkDevice, on_delete=models.CASCADE)
     id = models.AutoField(verbose_name="id", primary_key=True, editable=False)
@@ -153,61 +152,12 @@ class NetworkEdgePort(PlCoreBase):
 
         super(NetworkEdgePort, self).save(*args, **kwargs)
 
-class NetworkPointToPointConnection(PlCoreBase):
+#E-Line Service
+class NetworkEdgeToEdgePointConnection(Service):
 
     class Meta:
         app_label = SERVICE_NAME
-
-    TYPE = (
-        ('direct', 'Direct'),
-        ('indirect', 'Indirect'),
-        ('edge', 'Edge'),
-        ('tunnel', 'Tunnel'),
-        ('optical', 'Optical'),
-        ('virtual', 'Virtual'),
-    )
-
-    OPERATIONALSTATE = (
-        ('active', 'Active'),
-        ('inactive', 'Inactive')
-    )
-
-    ADMINISTRATIVESTATE = (
-        ('disabled', 'Disabled'),
-        ('activationrequested', 'ActivationRequested'),
-        ('enabled', 'Enabled'),
-        ('invalid', 'Invalid'),
-        ('deactivationrequested', 'DeactivationRequested')
-    )
-
-    id = models.AutoField(verbose_name="PointToPointConnectionId",
-                          primary_key=True,
-                          editable=False)
-
-
-    sid = models.CharField(unique=True, verbose_name="Service ID", max_length=256, editable=True)
-    type = models.CharField(choices=TYPE, verbose_name="Type", max_length=256, editable=False)
-    src = models.ForeignKey(NetworkPort,
-                            related_name='PointToPointSrc',
-                            verbose_name="Source",
-                            editable=False,
-                            on_delete=models.CASCADE)
-    dest = models.ForeignKey(NetworkPort,
-                             related_name='PointToPointDst',
-                             verbose_name="Destination",
-                             editable=False,
-                             on_delete=models.CASCADE)
-    operstate = models.CharField(choices=OPERATIONALSTATE, verbose_name="OperationalState", max_length=256, editable=False)
-    adminstate = models.CharField(choices=ADMINISTRATIVESTATE, verbose_name="AdministrativeState", max_length=256, editable=True)
-
-
-    def __init__(self, *args, **kwargs):
-        super(NetworkPointToPointConnection, self).__init__(*args, **kwargs)
-
-class NetworkEdgeToEdgePointConnection(PlCoreBase):
-
-    class Meta:
-        app_label = SERVICE_NAME
+        verbose_name = SERVICE_NAME_ELINE_VERBOSE
 
     TYPE = (
         ('direct', 'Direct'),
@@ -230,9 +180,6 @@ class NetworkEdgeToEdgePointConnection(PlCoreBase):
         ('deactivationrequested', 'DeactivationRequested')
     )
 
-    id = models.AutoField(verbose_name="EdgePointToEdgePointConnectivityId",
-                          primary_key=True,
-                          editable=False)
     sid = models.CharField(unique=True, verbose_name="Service ID", max_length=256, editable=True)
     type = models.CharField(choices=TYPE, verbose_name="Type", max_length=256, editable=True)
     uni1 = models.ForeignKey(NetworkEdgePort,
@@ -248,15 +195,18 @@ class NetworkEdgeToEdgePointConnection(PlCoreBase):
     operstate = models.CharField(choices=OPERATIONALSTATE, verbose_name="OperationalState", max_length=256, editable=True)
     adminstate = models.CharField(choices=ADMINISTRATIVESTATE, verbose_name="AdministrativeState", max_length=256, editable=True)
 
+    #uni1_createbuffer = models.CharField(max_length=256, default="{}", null=True)
+    #uni2_createbuffer = models.CharField(max_length=256, default="{}", null=True)
 
     def __init__(self, *args, **kwargs):
         super(NetworkEdgeToEdgePointConnection, self).__init__(*args, **kwargs)
 
-
-class NetworkMultipointConnection(PlCoreBase):
+#E-Tree Service
+class NetworkEdgeToMultipointConnection(Service):
 
     class Meta:
         app_label = SERVICE_NAME
+        verbose_name = SERVICE_NAME_ETREE_VERBOSE
 
     TYPE = (
         ('vlan', 'VLAN'),
@@ -264,48 +214,82 @@ class NetworkMultipointConnection(PlCoreBase):
         ('ethernet', 'Ethernet'),
     )
 
-    STATE = (
+    OPERATIONALSTATE = (
         ('active', 'Active'),
         ('inactive', 'Inactive')
     )
 
+    ADMINISTRATIVESTATE = (
+        ('disabled', 'Disabled'),
+        ('activationrequested', 'ActivationRequested'),
+        ('enabled', 'Enabled'),
+        ('invalid', 'Invalid'),
+        ('deactivationrequested', 'DeactivationRequested')
+    )
+
+    sid = models.CharField(unique=True, verbose_name="Service ID", max_length=256, editable=True)
     type = models.CharField(choices=TYPE, verbose_name="Type", max_length=256, editable=False)
-    eps = models.ManyToManyField(NetworkPort,
-                                 related_name='eps',
+    root = models.ForeignKey(NetworkEdgePort,
+                            related_name='EdgeToMultipointRoot',
+                            verbose_name="Root",
+                            editable=True,
+                            on_delete=models.CASCADE)
+    eps = models.ManyToManyField(NetworkEdgePort,
+                                 related_name='%(class)s_eps',
                                  verbose_name="Endpoints",
                                  editable=False)
-    state = models.CharField(choices=STATE, verbose_name="State", max_length=256, editable=False)
+    operstate = models.CharField(choices=OPERATIONALSTATE, verbose_name="OperationalState", max_length=256,
+                                 editable=True)
+    adminstate = models.CharField(choices=ADMINISTRATIVESTATE, verbose_name="AdministrativeState", max_length=256,
+                                  editable=True)
+
+    # Scratch Area to help deal with the Many to Many relationship with the eps
+    #eps_createbuffer = models.CharField(max_length=1024, default="{}", null=True)
 
     def __init__(self, *args, **kwargs):
-        super(NetworkMultipointConnection, self).__init__(*args, **kwargs)
+        super(NetworkEdgeToMultipointConnection, self).__init__(*args, **kwargs)
 
-class NetworkInterLink(PlCoreBase):
+#E-LAN Service
+class NetworkMultipointToMultipointConnection(Service):
 
     class Meta:
         app_label = SERVICE_NAME
+        verbose_name = SERVICE_NAME_ELAN_VERBOSE
 
-    DISCOVERY = (
-        ('auto', 'Automatic Discovery'),
-        ('manual', 'Manual Discovery'),
+    TYPE = (
+        ('vlan', 'VLAN'),
+        ('ip', 'IP'),
+        ('ethernet', 'Ethernet'),
     )
 
-    STATE = (
+    OPERATIONALSTATE = (
         ('active', 'Active'),
         ('inactive', 'Inactive')
     )
 
-    src = models.ForeignKey(NetworkPort,
-                            related_name='InterLinkSrc',
-                            verbose_name="Source",
-                            editable=False,
-                            on_delete=models.CASCADE)
-    dest = models.ForeignKey(NetworkPort,
-                             related_name='InterLinkDst',
-                             verbose_name="Destination",
-                             editable=False,
-                             on_delete=models.CASCADE)
-    state = models.CharField(choices=STATE, verbose_name="State", max_length=256, editable=False)
-    discovery = models.CharField(choices=STATE, verbose_name="State", max_length=256, editable=False)
+    ADMINISTRATIVESTATE = (
+        ('disabled', 'Disabled'),
+        ('activationrequested', 'ActivationRequested'),
+        ('enabled', 'Enabled'),
+        ('invalid', 'Invalid'),
+        ('deactivationrequested', 'DeactivationRequested')
+    )
+
+    sid = models.CharField(unique=True, verbose_name="Service ID", max_length=256, editable=True)
+    type = models.CharField(choices=TYPE, verbose_name="Type", max_length=256, editable=False)
+    eps = models.ManyToManyField(NetworkEdgePort,
+                                 related_name='%(class)s_eps',
+                                 verbose_name="Endpoints",
+                                 editable=False)
+
+    operstate = models.CharField(choices=OPERATIONALSTATE, verbose_name="OperationalState", max_length=256,
+                                 editable=True)
+    adminstate = models.CharField(choices=ADMINISTRATIVESTATE, verbose_name="AdministrativeState", max_length=256,
+                              editable=True)
+
+    # Scratch Area to help deal with the Many to Many relationship with the eps
+    #eps_createbuffer = models.CharField(max_length=1024, default="{}", null=True)
 
     def __init__(self, *args, **kwargs):
-        super(NetworkInterLink, self).__init__(*args, **kwargs)
+        super(NetworkMultipointToMultipointConnection, self).__init__(*args, **kwargs)
+

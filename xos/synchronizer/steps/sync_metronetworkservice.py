@@ -5,6 +5,7 @@ from synchronizers.base.syncstep import SyncStep
 from services.metronetwork.models import *
 from xos.logger import Logger, logging
 from synchronizers.metronetwork.providers.providerfactory import ProviderFactory
+from synchronizers.metronetwork.invokers.invokerfactory import InvokerFactory
 
 # metronetwork will be in steps/..
 parentdir = os.path.join(os.path.dirname(__file__), "..")
@@ -13,9 +14,9 @@ sys.path.insert(0, parentdir)
 logger = Logger(level=logging.INFO)
 
 
-class SyncMetroNetworkService(SyncStep):
-    provides = [MetroNetworkService]
-    observes = MetroNetworkService
+class SyncMetroNetworkSystem(SyncStep):
+    provides = [MetroNetworkSystem]
+    observes = MetroNetworkSystem
     requested_interval = 0
     initialized = False
 
@@ -35,18 +36,18 @@ class SyncMetroNetworkService(SyncStep):
 
         objs = []
 
-        # Get the NetworkService object - if it exists it will test us
+        # Get the NetworkSystem object - if it exists it will test us
         # whether we should do a full sync or not - it all has our config
         # information about the REST interface
 
-        metronetworkservice = self.get_metronetwork_service()
-        if not metronetworkservice:
+        metronetworksystem = self.get_metronetwork_system()
+        if not metronetworksystem:
             logger.debug("No Service configured")
             return objs
 
-        # Check to make sure the Service is enabled
-        metronetworkservice = self.get_metronetwork_service()
-        if metronetworkservice.administrativeState == 'disabled':
+        # Check to make sure the Metro Network System is enabled
+        metronetworksystem = self.get_metronetwork_system()
+        if metronetworksystem.administrativeState == 'disabled':
             # Nothing to do
             logger.debug("MetroService configured - state is Disabled")
             return objs
@@ -163,19 +164,33 @@ class SyncMetroNetworkService(SyncStep):
         return objs
 
     def sync_record(self, o):
+
+        # First we call and see if there is an invoker for this object - the idea of the invoker
+        # is to wrap the save with a pre/post paradigm to handle special cases
+        # It will only exist for a subset of ojbects
+        invoker = InvokerFactory.getinvoker(o)
+
+        # Call Pre-save on the inovker (if it exists)
+        if invoker is not None:
+            invoker.presave(o)
+
         # Simply save the record to the DB - both updates and adds are handled the same way
         o.save()
+
+        # Call Post-save on the inovker (if it exists)
+        if invoker is not None:
+            invoker.postsave(o)
 
     def delete_record(self, o):
         # Overriden to customize our behaviour - the core sync step for will remove the record directly
         # We just log and return
         logger.debug("deleting Object %s" % str(o), extra=o.tologdict())
 
-    def get_metronetwork_service(self):
+    def get_metronetwork_system(self):
         # We only expect to have one of these objects in the system in the curent design
         # So get the first element from the query
-        metronetworkservices = MetroNetworkService.get_service_objects().all()
-        if not metronetworkservices:
+        metronetworksystem = MetroNetworkSystem.objects.all()
+        if not metronetworksystem:
             return None
 
-        return metronetworkservices[0]
+        return metronetworksystem[0]

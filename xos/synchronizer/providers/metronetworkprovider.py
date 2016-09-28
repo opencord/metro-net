@@ -26,11 +26,6 @@ class MetroNetworkProvider(object):
         # Default method needs to be overriden
         logger.debug("get_network_ports for deletion called - default is all ports in the db related to this id")
         objs = []
-        # ports = NetworkPort.objects.filter(networkdevice=self.networkdevice.id)
-        ports = NetworkPort.objects.all()
-        for port in ports:
-            objs.append(port)
-
         return objs
 
     # Method for retrieving all network links from the backend system
