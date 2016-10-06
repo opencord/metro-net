@@ -1,15 +1,6 @@
-import os
-import pdb
-import sys
-import tempfile
-sys.path.append("/opt/tosca")
-from translator.toscalib.tosca_template import ToscaTemplate
-
-from services.metronetwork.models import *
-
-from service import XOSService
 from xosresource import XOSResource
-
+from service import XOSService
+from services.metronetwork.models import *
 
 class XOSMetroNetworkSystem(XOSResource):
     provides = "tosca.nodes.MetroNetworkSystem"
