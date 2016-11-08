@@ -17,8 +17,9 @@ class NetworkEdgeToMultipointInvoker(Invoker):
     def presave(self, obj):
         # Now that the Ports are created - get a proper reference to them and update the
         # root field
-        rootEdgePort = NetworkEdgePort.objects.get(pid=obj.root_createbuffer)
-        obj.root = rootEdgePort
+        if hasattr(obj, 'root_createbuffer'):
+            rootEdgePort = NetworkEdgePort.objects.get(pid=obj.root_createbuffer)
+            obj.root = rootEdgePort
 
 
     # Method for handline post save semantics
@@ -37,9 +38,10 @@ class NetworkEdgeToMultipointInvoker(Invoker):
         # called 'eps' that just containts a reference to a bunch of NetworkEdgePorts
         #
         #
-        scratchpad = json.loads(obj.eps_createbuffer)
-        eps = scratchpad['eps']
+        if hasattr(obj, 'eps_createbuffer'):
+            scratchpad = json.loads(obj.eps_createbuffer)
+            eps = scratchpad['eps']
 
-        for ep in eps:
-            port = NetworkEdgePort.objects.get(pid=ep)
-            obj.eps.add(port)
+            for ep in eps:
+                port = NetworkEdgePort.objects.get(pid=ep)
+                obj.eps.add(port)

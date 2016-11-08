@@ -1,8 +1,10 @@
 import json
 from synchronizers.metronetwork.invokers.invoker import Invoker
-from services.metronetwork.models import NetworkMultipointToMultipointConnection, NetworkEdgePort
+from services.metronetwork.models import ServiceSpoke
+from services.metronetwork.models import BandwidthProfile
+from services.metronetwork.models import NetworkEdgeToEdgePointConnection
 
-class NetworkMultipointToMultipointInvoker(Invoker):
+class VnodGlobalServiceInvoker(Invoker):
 
     def __init__(self, **args):
         pass
@@ -15,8 +17,14 @@ class NetworkMultipointToMultipointInvoker(Invoker):
     # returns - None - this is a pure invoke() call, return type is None
     #
     def presave(self, obj):
-        pass
 
+        if hasattr(obj, 'bwpname'):
+            bwprofile = BandwidthProfile.objects.get(name=obj.bwpname)
+            obj.bandwidthProfile = bwprofile
+
+        if hasattr(obj, 'pointtopointsid'):
+            connection = NetworkEdgeToEdgePointConnection.objects.get(sid=obj.pointtopointsid)
+            obj.metronetworkpointtopoint = connection
 
     # Method for handline post save semantics
     #      content here would be model specific but could include handling Many-to-Many relationship
@@ -33,11 +41,10 @@ class NetworkMultipointToMultipointInvoker(Invoker):
         # this is a json field that is general purpose - we will expect to find a JSON array
         # called 'eps' that just containts a reference to a bunch of NetworkEdgePorts
         #
-        #
-        if hasattr(obj, 'eps_createbuffer'):
-            scratchpad = json.loads(obj.eps_createbuffer)
-            eps = scratchpad['eps']
+        if hasattr(obj, 'spokes_createbuffer'):
+            scratchpad = json.loads(obj.spokes_createbuffer)
+            spokes = scratchpad['spokes']
 
-            for ep in eps:
-                port = NetworkEdgePort.objects.get(pid=ep)
-                obj.eps.add(port)
+            for spokeid in spokes:
+                spoke = ServiceSpoke.objects.get(name=spokeid)
+                obj.spokes.add(spoke)

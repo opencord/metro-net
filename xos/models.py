@@ -3,6 +3,7 @@
 from django.db import models
 from core.models import Service
 from core.models import PlCoreBase
+from core.models import Site
 
 METRONETWORK_KIND = "metronetwork"
 SERVICE_NAME = 'metronetwork'
@@ -133,6 +134,9 @@ class NetworkEdgePort(PlCoreBase):
     def __init__(self, *args, **kwargs):
         super(NetworkEdgePort, self).__init__(*args, **kwargs)
 
+    def __unicode__(self):
+        return u'%s' % (self.pid)
+
     def save(self, *args, **kwargs):
 
         if self.latlng:
@@ -180,8 +184,9 @@ class NetworkEdgeToEdgePointConnection(Service):
         ('deactivationrequested', 'DeactivationRequested')
     )
 
-    sid = models.CharField(unique=True, verbose_name="Service ID", max_length=256, editable=True)
+    sid = models.CharField(verbose_name="Service ID", max_length=256, editable=True, blank=True)
     type = models.CharField(choices=TYPE, verbose_name="Type", max_length=256, editable=True)
+    vlanid = models.CharField(verbose_name="Vlanid", max_length=64, editable=True)
     uni1 = models.ForeignKey(NetworkEdgePort,
                             related_name='EdgePointToEdgePointSrc',
                             verbose_name="UNI 1",
@@ -212,6 +217,7 @@ class NetworkEdgeToMultipointConnection(Service):
         ('vlan', 'VLAN'),
         ('ip', 'IP'),
         ('ethernet', 'Ethernet'),
+        ('Root_Multipoint', 'Root Multipoint')
     )
 
     OPERATIONALSTATE = (
@@ -227,8 +233,9 @@ class NetworkEdgeToMultipointConnection(Service):
         ('deactivationrequested', 'DeactivationRequested')
     )
 
-    sid = models.CharField(unique=True, verbose_name="Service ID", max_length=256, editable=True)
-    type = models.CharField(choices=TYPE, verbose_name="Type", max_length=256, editable=False)
+    sid = models.CharField(verbose_name="Service ID", max_length=256, editable=True, blank=True)
+    type = models.CharField(choices=TYPE, verbose_name="Type", max_length=256, editable=True)
+    vlanid = models.CharField(verbose_name="Vlanid", max_length=64, editable=True)
     root = models.ForeignKey(NetworkEdgePort,
                             related_name='EdgeToMultipointRoot',
                             verbose_name="Root",
@@ -237,7 +244,7 @@ class NetworkEdgeToMultipointConnection(Service):
     eps = models.ManyToManyField(NetworkEdgePort,
                                  related_name='%(class)s_eps',
                                  verbose_name="Endpoints",
-                                 editable=False)
+                                 editable=True)
     operstate = models.CharField(choices=OPERATIONALSTATE, verbose_name="OperationalState", max_length=256,
                                  editable=True)
     adminstate = models.CharField(choices=ADMINISTRATIVESTATE, verbose_name="AdministrativeState", max_length=256,
@@ -260,6 +267,7 @@ class NetworkMultipointToMultipointConnection(Service):
         ('vlan', 'VLAN'),
         ('ip', 'IP'),
         ('ethernet', 'Ethernet'),
+        ('Multipoint_To_Multipoint', 'Multipoint To Multipoint')
     )
 
     OPERATIONALSTATE = (
@@ -275,12 +283,13 @@ class NetworkMultipointToMultipointConnection(Service):
         ('deactivationrequested', 'DeactivationRequested')
     )
 
-    sid = models.CharField(unique=True, verbose_name="Service ID", max_length=256, editable=True)
-    type = models.CharField(choices=TYPE, verbose_name="Type", max_length=256, editable=False)
+    sid = models.CharField(verbose_name="Service ID", max_length=256, editable=True, blank=True)
+    type = models.CharField(choices=TYPE, verbose_name="Type", max_length=256, editable=True)
+    vlanid = models.CharField(verbose_name="Vlanid", max_length=64, editable=True)
     eps = models.ManyToManyField(NetworkEdgePort,
                                  related_name='%(class)s_eps',
                                  verbose_name="Endpoints",
-                                 editable=False)
+                                 editable=True)
 
     operstate = models.CharField(choices=OPERATIONALSTATE, verbose_name="OperationalState", max_length=256,
                                  editable=True)
@@ -293,3 +302,162 @@ class NetworkMultipointToMultipointConnection(Service):
     def __init__(self, *args, **kwargs):
         super(NetworkMultipointToMultipointConnection, self).__init__(*args, **kwargs)
 
+class BandwidthProfile(PlCoreBase):
+
+    class Meta:
+        app_label = METRONETWORK_KIND
+        verbose_name = "Bandwidth Profile"
+
+    id = models.AutoField(verbose_name="id", primary_key=True, editable=False)
+    bwpcfgcbs = models.IntegerField(verbose_name="Committed Burst Size", editable=True)
+    bwpcfgebs = models.IntegerField(verbose_name="Excess Burst Size", editable=True)
+    bwpcfgcir = models.IntegerField(verbose_name="Committed Information Rate", editable=True)
+    bwpcfgeir = models.IntegerField(verbose_name="Excess Information Rate", editable=True)
+    name = models.CharField(unique=True, verbose_name="Name", max_length=256, editable=True)
+
+    def __init__(self, *args, **kwargs):
+        super(BandwidthProfile, self).__init__(*args, **kwargs)
+
+    def __unicode__(self):  return u'%s' % (self.name)
+
+# VNoD Global Objects - model is included in metro-net for simplicity
+
+class RemotePort(PlCoreBase):
+    class Meta:
+        app_label = METRONETWORK_KIND
+        verbose_name = "Remote Port"
+
+    remoteportsite = models.ForeignKey(Site,
+                                       related_name='RemotePortSite',
+                                       verbose_name="RemotePortSite",
+                                       editable=True,
+                                       on_delete=models.CASCADE)
+
+    edgeport = models.ForeignKey(NetworkEdgePort,
+                                 related_name='RemotePortEdgePort',
+                                 verbose_name="RemotePortEdgePort",
+                                 editable=True,
+                                 on_delete=models.CASCADE)
+
+    id = models.AutoField(verbose_name="id", primary_key=True, editable=False)
+    name = models.CharField(unique=True, verbose_name="Name", max_length=256, editable=True)
+
+    def __init__(self, *args, **kwargs):
+        super(RemotePort, self).__init__(*args, **kwargs)
+
+    def __unicode__(self):  return u'%s' % (self.name)
+
+class ServiceSpoke(PlCoreBase):
+
+    class Meta:
+        app_label = METRONETWORK_KIND
+        verbose_name = "Service Spoke"
+
+    OPERATIONALSTATE = (
+        ('active', 'Active'),
+        ('inactive', 'Inactive')
+    )
+
+    ADMINISTRATIVE_STATE = (
+        ('disabled', 'Disabled'),
+        ('configured', 'Configured'),
+        ('impaired', 'Impaired'),
+        ('enabled', 'Enabled')
+    )
+
+    vnodlocalsite = models.ForeignKey(Site,
+                      related_name='VnodLocalSite',
+                      verbose_name="VnodLocalSite",
+                      editable=True,
+                      on_delete=models.CASCADE)
+
+    vnodlocalport = models.ForeignKey(RemotePort,
+                                      related_name='VnodLocalPort',
+                                      verbose_name="VnodLocalPort",
+                                      editable=True,
+                                      on_delete=models.CASCADE)
+
+    id = models.AutoField(verbose_name="id", primary_key=True, editable=False)
+    name = models.CharField(unique=True, verbose_name="Name", max_length=256, editable=True)
+    remotesubscriber = models.CharField(verbose_name="RemoteSubscriber", max_length=256, blank=True, editable=False)
+    remotevnodid = models.CharField(verbose_name="RemoteVnodId", max_length=256, blank=True, editable=False)
+    autoattached = models.BooleanField(verbose_name="Auto-Attached", default=False, editable=True)
+    operstate = models.CharField(choices=OPERATIONALSTATE, verbose_name="OperationalState", max_length=256,
+                                 editable=True, default='inactive')
+    adminstate = models.CharField(choices=ADMINISTRATIVE_STATE, default='disabled', verbose_name="AdministrativeState",
+                                           max_length=64, editable=True)
+
+    def __init__(self, *args, **kwargs):
+        super(ServiceSpoke, self).__init__(*args, **kwargs)
+
+    def __unicode__(self):  return u'%s' % (self.name)
+
+class VnodGlobalService(Service):
+
+    class Meta:
+        app_label = SERVICE_NAME
+        verbose_name = "Virtual Network On Demand Global Service"
+
+    TYPE = (
+        ('eline', SERVICE_NAME_ELINE_VERBOSE),
+        ('elan', SERVICE_NAME_ELAN_VERBOSE),
+        ('etree', SERVICE_NAME_ETREE_VERBOSE),
+    )
+
+    OPERATIONALSTATE = (
+        ('active', 'Active'),
+        ('inactive', 'Inactive')
+    )
+
+    ADMINISTRATIVESTATE = (
+        ('disabled', 'Disabled'),
+        ('activationrequested', 'ActivationRequested'),
+        ('enabled', 'Enabled'),
+        ('invalid', 'Invalid'),
+        ('deactivationrequested', 'DeactivationRequested')
+    )
+
+    servicehandle = models.CharField(unique=True, verbose_name="Servicehandle", max_length=64, editable=True)
+    vlanid = models.CharField(verbose_name="Vlanid", max_length=64, editable=True)
+    type = models.CharField(choices=TYPE, verbose_name="Type", max_length=256, editable=True)
+
+    metronetworkroottomultipoint = models.ForeignKey(NetworkEdgeToMultipointConnection,
+                            related_name='EtreeService',
+                            verbose_name="EtreeService",
+                            null=True,
+                            editable=True,
+                            on_delete=models.CASCADE)
+
+    metronetworkmultipoint = models.ForeignKey(NetworkMultipointToMultipointConnection,
+                                                     related_name='ElanService',
+                                                     verbose_name="ElanService",
+                                                     null=True,
+                                                     editable=True,
+                                                     on_delete=models.CASCADE)
+
+    metronetworkpointtopoint = models.ForeignKey(NetworkEdgeToEdgePointConnection,
+                                               related_name='ElineService',
+                                               verbose_name="ElineService",
+                                               null=True,
+                                               editable=True,
+                                               on_delete=models.CASCADE)
+
+    operstate = models.CharField(choices=OPERATIONALSTATE, verbose_name="OperationalState", max_length=256,
+                                 editable=True)
+
+    adminstate = models.CharField(choices=ADMINISTRATIVESTATE, verbose_name="AdministrativeState", max_length=256,
+                                  editable=True, default='enabled')
+
+    spokes = models.ManyToManyField(ServiceSpoke,
+                                 related_name='ServiceSpokes',
+                                 verbose_name="Spokes",
+                                 editable=True)
+
+    bandwidthProfile = models.ForeignKey(BandwidthProfile,
+                                               related_name='BandwidthProfile',
+                                               verbose_name="BandwidthProfile",
+                                               editable=True,
+                                               on_delete=models.CASCADE)
+
+    def __init__(self, *args, **kwargs):
+        super(VnodGlobalService, self).__init__(*args, **kwargs)

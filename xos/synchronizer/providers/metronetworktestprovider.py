@@ -3,6 +3,7 @@ import json
 
 from xos.logger import Logger, logging
 from services.metronetwork.models import *
+from core.models import Site
 from synchronizers.metronetwork.providers.metronetworkprovider import MetroNetworkProvider
 
 logger = Logger(level=logging.INFO)
@@ -15,40 +16,18 @@ class MetroNetworkTestProvider(MetroNetworkProvider):
     # Method for retrieving all network ports from the backend system
     def get_network_ports(self):
         #
-        # Our Test Network Consists of three NetworkDevices (which correspond to ONOS instances):
+        # Our Test Network Consists of one NetworkDevice (which correspond to ONOS instance):
         #
-        #                    ONOS1-CORDPOD1
-        #                    ONOS2-MetroNetwork
-        #                    ONOW3-CORDPOD2
+        #  8 Ports
+        #  1 Eline (2 ports)
+        #  1 Etree (3 ports)
+        #  1 Elan (3 ports)
         #
-        #
-        #    Uni-NetworkEdgePort3--
-        #    Uni-NetworkEdgePort11-
-        #    Uni-NetworkEdgePort5--ONOS1-CORDPOD1-NetworkPort6
-        #            NetworkPort4--                     |
-        #                                        NetworkPort1-ONOS2-MetroNetwork
-        #                                        NetworkPort2-
-        #                                             |
-        #    Uni-NetworkEdgePort7--ONOS3-CORDPOD2-NetworkPort10
-        #    Uni-NetworkEdgePort9--
-        #    Uni-NetworkEdgePort12-
-        #        NetworkPort8--
-        #
-        #  Note: NetworkPorts can be endpoints of Interlinks and NetworkPointToPointConnections
-        #              they can be seem as a simple port.
-        #        NetworkEdgePorts are UNIs in the network, so are specicially user facing.
-        #
-        #
-        # InterLinks - Port1 - Port6
-        #              Port2 - Port10
-        #
-        # NetworkPointToPointConnections: Port1 - Port2
-        #                                 Port4 - Port6
-        #                                 Port8 - Port10
-        #
-        # NetworkEdgeToEdgePointConnections: Port3 - Port7
-        #
-        # NetworkMultipointConnection: Port11 - Port5 - Port9 - Port12
+        #  2 Sites - Representing Two R-CORD Pods
+        #  2 Ports, One-per-site
+        #  1 Bandwidth Profile
+        #  2 Service Spokes
+        #  1 VnodGlobalService
 
         objs = []
 
@@ -56,14 +35,9 @@ class MetroNetworkTestProvider(MetroNetworkProvider):
         if self.networkdevice.id != 'TestMetroNet':
             return objs
 
-        # Ok - in the test class we cheat and create one NetworkDevice with 8 NetworkEdgePorts
+        # Set the parent device id to just be the Test NetworkDevice
         device1 = NetworkDevice()
-        device1.id = 'TestCORDNet'
-        device1.administrativeState = 'enabled'
-        device1.restCtrlUrl = 'testCordPod1.onlab.net:8000'
-        device1.username = 'karaf'
-        device1.password = 'karaf'
-        objs.append(device1)
+        device1.id = self.networkdevice.id
 
         port1 = NetworkEdgePort()
         port1.element = device1
@@ -176,11 +150,6 @@ class MetroNetworkTestProvider(MetroNetworkProvider):
         for port in allports:
             objs.append(port)
 
-        # Ok - in the test class we cheat and take down the adjunct Fake NetworkDevices Devices
-        device1 = NetworkDevice()
-        device1.id = 'TestCORDNet'
-        objs.append(device1)
-
         return objs
 
     def get_network_links(self):
@@ -189,7 +158,7 @@ class MetroNetworkTestProvider(MetroNetworkProvider):
 
         # Connectivity object - Point to Point
         cordpod1device = NetworkDevice()
-        cordpod1device.id = 'TestCORDNet'
+        cordpod1device.id = self.networkdevice.id
 
         # Edge to Edge Point Connectivity Objects
         edgetoedgeconnectivity = NetworkEdgeToEdgePointConnection()
@@ -239,6 +208,81 @@ class MetroNetworkTestProvider(MetroNetworkProvider):
         edge2multipointconnectivity.eps_createbuffer = json.dumps(myjsonstr)
         objs.append(edge2multipointconnectivity)
 
+        # Create Objects for VnodGlobal Sort of Testing
+
+        # Bandwidth Profile
+
+        bwprofile = BandwidthProfile()
+        bwprofile.bwpcfgcbs  = 0
+        bwprofile.bwpcfgcir = 0
+        bwprofile.bwpcfgebs = 0
+        bwprofile.bwpcfgeir = 0
+        bwprofile.name = 'TestBWP'
+        objs.append(bwprofile)
+
+        # Two Sites
+        site1 = Site()
+        site1.name = 'CORDPod1'
+        site1.login_base = 'CordPod1'
+        site1.site_url = 'http://1.2.3.4:8080/VnodLocalApi'
+        objs.append(site1)
+
+        site2 = Site()
+        site2.name = 'CORDPod2'
+        site2.login_base = 'CordPod2'
+        site2.site_url = 'http://10.11.12.13:8080/VnodLocalApi'
+        objs.append(site2)
+
+        # Two Ports - one per Site
+
+        remoteport1 = RemotePort()
+        remoteport1.name = "CORDPOD1:Port1"
+        remoteport1.sitename = 'CordPod1'
+        remoteport1.edgeportname = cordpod1device.id + "." + "of:000000001/1"
+        objs.append(remoteport1)
+
+        remoteport2 = RemotePort()
+        remoteport2.name = "CORDPOD2:Port1"
+        remoteport2.sitename = 'CordPod2'
+        remoteport2.edgeportname = cordpod1device.id + "." + "of:000000001/2"
+        objs.append(remoteport2)
+
+        # One Spoke/Site
+        spoke1 = ServiceSpoke()
+        spoke1.name = 'TestSpoke1'
+        spoke1.remoteportname = "CORDPOD1:Port1"
+        spoke1.remotevnodid = 'CORDPod1:VnodLocal:1'
+        spoke1.operstate = 'inactive'
+        spoke1.adminstate = 'enabled'
+        spoke1.sitename = 'CordPod1'
+        objs.append(spoke1)
+
+        spoke2 = ServiceSpoke()
+        spoke2.name = 'TestSpoke2'
+        spoke2.remoteportname = "CORDPOD2:Port1"
+        spoke2.remotevnodid = 'CORDPod2:VnodLocal:1'
+        spoke2.operstate = 'active'
+        spoke2.adminstate = 'enabled'
+        spoke2.sitename = 'CordPod2'
+        objs.append(spoke2)
+
+        # One VnodGlobal Service
+        vnodglobal = VnodGlobalService()
+        vnodglobal.name = 'VnodGlobalPtToPtTest1'
+        vnodglobal.type = 'eline'
+        vnodglobal.vlanid = '100'
+        vnodglobal.operstate = 'active'
+        vnodglobal.adminstate = 'enabled'
+        vnodglobal.servicehandle = 'testhandle1'
+        vnodglobal.pointtopointsid = 'onos_eline_id'
+        vnodglobal.bwpname = 'TestBWP'
+
+        # Create JSON array for post-save behaviour
+        #
+        spokes = ['TestSpoke1', 'TestSpoke2']
+        myjsonstr = {'spokes': spokes}
+        vnodglobal.spokes_createbuffer = json.dumps(myjsonstr)
+        objs.append(vnodglobal)
 
         return objs
 

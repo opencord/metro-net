@@ -1,5 +1,5 @@
-import os
-import sys
+import os, sys
+from itertools import chain
 
 from synchronizers.base.syncstep import SyncStep
 from services.metronetwork.models import *
@@ -119,12 +119,15 @@ class SyncMetroNetworkSystem(SyncStep):
 
                 # Handle changes XOS -> ONOS
                 # Check for ConnectivityObjects that are in acticationequested state - creates to the backend
-                activatereqs = NetworkEdgeToEdgePointConnection.objects.filter(adminstate='activationrequested')
+                p2pactivatereqs = NetworkEdgeToEdgePointConnection.objects.filter(adminstate='activationrequested')
+                mp2mpactivatereqs = NetworkMultipointToMultipointConnection.objects.filter(adminstate='activationrequested')
+                r2mpactivatereqs = NetworkEdgeToMultipointConnection.objects.filter(adminstate='activationrequested')
+                activatereqs = list(chain(p2pactivatereqs, mp2mpactivatereqs, r2mpactivatereqs))
                 for activatereq in activatereqs:
 
                     # Call the XOS Interface to create the service
                     logger.debug("Attempting to create EdgePointToEdgePointConnectivity: %s" % activatereq.id)
-                    if (provider.create_point_to_point_connectivity(activatereq)):
+                    if (provider.create_network_connectivity(activatereq)):
                         # Everyting is OK, lets let the system handle the persist
                         objs.append(activatereq)
                     else:
@@ -133,12 +136,15 @@ class SyncMetroNetworkSystem(SyncStep):
                         activatereq.save()
 
                 # Check for ConnectivityObjects that are in deacticationequested state - deletes to the backend
-                deactivatereqs = NetworkEdgeToEdgePointConnection.objects.filter(adminstate='deactivationrequested')
+                p2pdeactivatereqs = NetworkEdgeToEdgePointConnection.objects.filter(adminstate='deactivationrequested')
+                mp2mpdeactivatereqs = NetworkMultipointToMultipointConnection.objects.filter(adminstate='deactivationrequested')
+                r2mpdeactivatereqs = NetworkEdgeToMultipointConnection.objects.filter(adminstate='deactivationrequested')
+                deactivatereqs = list(chain(p2pdeactivatereqs, mp2mpdeactivatereqs, r2mpdeactivatereqs))
                 for deactivatereq in deactivatereqs:
 
                     # Call the XOS Interface to delete the service
                     logger.debug("Attempting to delete EdgePointToEdgePointConnectivity: %s" % deactivatereq.id)
-                    if provider.delete_point_to_point_connectivity(deactivatereq):
+                    if provider.delete_network_connectivity(deactivatereq):
                         # Everyting is OK, lets let the system handle the persist
                         objs.append(deactivatereq)
                     else:
@@ -159,6 +165,57 @@ class SyncMetroNetworkSystem(SyncStep):
                 for eventobj in eventobjs:
                     # Simply put in the queue for update - this will handle both new and changed objects
                     objs.append(eventobj)
+
+                # Handle the case where we have deleted Eline Services from our side - if the Service is in
+                # enabled state then we call the provider, otherwise just queue it for deletion
+                elinedeletedobjs = NetworkEdgeToEdgePointConnection.deleted_objects.all()
+                for elinedeletedobj in elinedeletedobjs:
+                    if elinedeletedobj.adminstate == 'enabled':
+                        provider.delete_network_connectivity(elinedeletedobj)
+                    # Either way queue it for deletion
+                    objs.append(elinedeletedobj)
+
+                # Handle the case where we have deleted Etree Services from our side - if the Service is in
+                # enabled state then we call the provider, otherwise just queue it for deletion
+                etreedeletedobjs = NetworkEdgeToMultipointConnection.deleted_objects.all()
+                for etreedeletedobj in etreedeletedobjs:
+                    # TODO: Handle the case where its connected, we need to disconnect first
+                    if etreedeletedobj.adminstate == 'enabled':
+                        provider.delete_network_connectivity(etreedeletedobj)
+                    # Either way queue it for deletion
+                    objs.append(etreedeletedobj)
+
+                # Handle the case where we have deleted Elan Services from our side - if the Service is in
+                # enabled state then we call the provider, otherwise just queue it for deletion
+                elandeletedobjs = NetworkMultipointToMultipointConnection.deleted_objects.all()
+                for elandeletedobj in elandeletedobjs:
+                    # TODO: Handle the case where its connected, we need to disconnect first
+                    if elandeletedobj.adminstate == 'enabled':
+                        provider.delete_network_connectivity(elandeletedobj)
+                    # Either way queue it for deletion
+                    objs.append(elandeletedobj)
+
+                # Handle the case where we have deleted VnodGlobal Services from our side - if there is
+                # an attached Eline/Etree/Elan we set that to deleted
+                vnodbloaldeletedobjs = VnodGlobalService.deleted_objects.all()
+                for vnodbloaldeletedobj in vnodbloaldeletedobjs:
+                    # Check for dependent eline service
+                    if vnodbloaldeletedobj.metronetworkpointtopoint is not None:
+                        elineobj = vnodbloaldeletedobj.metronetworkpointtopoint
+                        elineobj.deleted = True
+                        objs.append(elineobj)
+                    # Check for dependent elan service
+                    if vnodbloaldeletedobj.metronetworkmultipoint is not None:
+                        elanobj = vnodbloaldeletedobj.metronetworkmultipoint
+                        elanobj.deleted = True
+                        objs.append(elanobj)
+                    # Check for dependent etree service
+                    if vnodbloaldeletedobj.metronetworkroottomultipoint is not None:
+                        etreeobj = vnodbloaldeletedobj.metronetworkroottomultipoint
+                        etreeobj.deleted = True
+                        objs.append(etreeobj)
+
+                    objs.append(vnodbloaldeletedobj)
 
         # In add cases return the objects we are interested in
         return objs

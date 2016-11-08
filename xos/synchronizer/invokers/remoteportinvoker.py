@@ -1,9 +1,9 @@
 import json
 from synchronizers.metronetwork.invokers.invoker import Invoker
+from core.models import Site
 from services.metronetwork.models import NetworkEdgePort
 
-
-class NetworkEdgeToEdgePointInvoker(Invoker):
+class RemotePortInvoker(Invoker):
     def __init__(self, **args):
         pass
 
@@ -15,13 +15,14 @@ class NetworkEdgeToEdgePointInvoker(Invoker):
     # returns - None - this is a pure invoke() call, return type is None
     #
     def presave(self, obj):
-        # Now that the Ports are created - get a proper reference to them and update the
-        # src and dst fields
-        if hasattr(obj, 'uni1_createbuffer'):
-            uni1port = NetworkEdgePort.objects.get(pid=obj.uni1_createbuffer)
-            uni2port = NetworkEdgePort.objects.get(pid=obj.uni2_createbuffer)
-            obj.uni1 = uni1port
-            obj.uni2 = uni2port
+        # Now that the Site and EdgePorts are created set the foreign keys
+        if hasattr(obj, 'sitename'):
+            site = Site.objects.get(login_base=obj.sitename)
+            obj.remoteportsite = site
+
+        if hasattr(obj, 'edgeportname'):
+            edgeport = NetworkEdgePort.objects.get(pid=obj.edgeportname)
+            obj.edgeport = edgeport
 
     # Method for handline post save semantics
     #      content here would be model specific but could include handling Many-to-Many relationship

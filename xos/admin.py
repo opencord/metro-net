@@ -47,29 +47,65 @@ class NetworkEdgePortAdmin(XOSBaseAdmin):
 class NetworkEdgeToEdgePointConnectionAdmin(XOSBaseAdmin):
     verbose_name = "Metro Network E-Line Service"
     verbose_name_plural = "Metro Network E-Line Services"
-    list_display = ('id', 'sid', 'type', 'uni1', 'uni2', 'adminstate', 'operstate')
-    list_display_links = ('id', 'sid', 'type', 'uni1', 'uni2', 'adminstate', 'operstate')
+    list_display = ('id', 'name', 'sid', 'type', 'vlanid', 'uni1', 'uni2', 'adminstate', 'operstate')
+    list_display_links = ('id', 'name', 'sid', 'type', 'vlanid', 'uni1', 'uni2', 'adminstate', 'operstate')
 
-    fields = ('id', 'sid', 'type', 'uni1', 'uni2', 'adminstate', 'operstate', 'backend_status')
-    readonly_fields = ('id', 'type', 'uni1', 'uni2', 'operstate', 'backend_status')
+    fields = ('id', 'name', 'sid', 'type', 'vlanid', 'uni1', 'uni2', 'adminstate', 'operstate', 'backend_status')
+    readonly_fields = ('id', 'sid', 'backend_status')
 
 class NetworkMultipointToMultipointConnectionAdmin(XOSBaseAdmin):
     verbose_name = "Metro Network E-LAN Service"
     verbose_name_plural = "Metro Network E-LAN Services"
-    list_display = ('id', 'sid', 'type', 'adminstate', 'operstate')
-    list_display_links = ('id', 'sid', 'type', 'adminstate', 'operstate')
+    list_display = ('id', 'name', 'sid', 'type', 'vlanid', 'adminstate', 'operstate')
+    list_display_links = ('id', 'name', 'sid', 'type', 'vlanid', 'adminstate', 'operstate')
 
-    fields = ('id', 'sid', 'type', 'eps', 'adminstate', 'operstate', 'backend_status')
-    readonly_fields = ('id', 'sid', 'type', 'eps', 'adminstate', 'operstate', 'backend_status')
+    fields = ('id', 'name', 'sid', 'type', 'vlanid', 'eps', 'adminstate', 'operstate', 'backend_status')
+    readonly_fields = ('id', 'sid', 'backend_status')
 
 class NetworkEdgeToMultipointConnectionAdmin(XOSBaseAdmin):
     verbose_name = "Metro Network E-Tree Service"
     verbose_name_plural = "Metro Network E-Tree Services"
-    list_display = ('id', 'sid', 'type', 'adminstate', 'operstate')
-    list_display_links = ('id', 'sid', 'type', 'adminstate', 'operstate')
+    list_display = ('id', 'name', 'sid', 'type', 'vlanid', 'adminstate', 'operstate')
+    list_display_links = ('id', 'name', 'sid', 'type', 'vlanid', 'adminstate', 'operstate')
 
-    fields = ('id', 'sid', 'type', 'root', 'eps', 'adminstate', 'operstate', 'backend_status')
-    readonly_fields = ('id', 'sid', 'type', 'root', 'eps', 'adminstate', 'operstate', 'backend_status')
+    fields = ('id', 'name', 'sid', 'type', 'vlanid', 'root', 'eps', 'adminstate', 'operstate', 'backend_status')
+    readonly_fields = ('id', 'sid', 'backend_status')
+
+class RemotePortAdmin(XOSBaseAdmin):
+    verbose_name = "Remote Port"
+    verbose_name_plural = "Remote Ports"
+    list_display = ('name', 'remoteportsite', 'edgeport')
+    list_display_links = ('name', 'remoteportsite', 'edgeport')
+
+    fields = ('name', 'remoteportsite', 'edgeport')
+
+class BandwidthProfileAdmin(XOSBaseAdmin):
+    verbose_name = "Bandwidth Profile"
+    verbose_name_plural = "Bandwidth Profiles"
+    list_display = ('bwpcfgcbs', 'bwpcfgebs', 'bwpcfgcir', 'bwpcfgeir', 'name')
+    list_display_links = ('bwpcfgcbs', 'bwpcfgebs', 'bwpcfgcir', 'bwpcfgeir', 'name')
+
+    fields = ('bwpcfgcbs', 'bwpcfgebs', 'bwpcfgcir', 'bwpcfgeir', 'name')
+
+class ServiceSpokeAdmin(XOSBaseAdmin):
+    verbose_name = "Service Spoke"
+    verbose_name_plural = "Service Spokes"
+    list_display = ('name','vnodlocalsite', 'remotesubscriber', 'adminstate', 'operstate', 'autoattached')
+    list_display_links = ('name','vnodlocalsite', 'remotesubscriber', 'adminstate', 'operstate', 'autoattached')
+
+    fields = ('name', 'id','vnodlocalsite', 'vnodlocalport', 'remotesubscriber', 'adminstate', 'operstate', 'backend_status', 'autoattached')
+    readonly_fields = ('id', 'remotesubscriber', 'adminstate', 'operstate', 'backend_status')
+
+class VnodGlobalServiceAdmin(XOSBaseAdmin):
+    verbose_name = "VNOD Global Service"
+    verbose_name_plural = "VNOD Global Services"
+    list_display = ('servicehandle', 'vlanid', 'type','operstate', 'adminstate')
+    list_display_links = ('servicehandle', 'vlanid', 'type','operstate', 'adminstate')
+
+    fields = (
+        'id', 'servicehandle', 'vlanid', 'type', 'metronetworkmultipoint', 'metronetworkpointtopoint', 'metronetworkroottomultipoint', 'operstate', 'adminstate', 'spokes', 'bandwidthProfile')
+    readonly_fields = (
+        'id', 'operstate', 'backend_status', 'metronetworkmultipoint', 'metronetworkpointtopoint', 'metronetworkroottomultipoint')
 
 admin.site.register(MetroNetworkSystem, MetroNetworkSystemAdmin)
 admin.site.register(NetworkDevice, NetworkDeviceAdmin)
@@ -77,3 +113,11 @@ admin.site.register(NetworkEdgePort, NetworkEdgePortAdmin)
 admin.site.register(NetworkEdgeToEdgePointConnection, NetworkEdgeToEdgePointConnectionAdmin)
 admin.site.register(NetworkMultipointToMultipointConnection, NetworkMultipointToMultipointConnectionAdmin)
 admin.site.register(NetworkEdgeToMultipointConnection, NetworkEdgeToMultipointConnectionAdmin)
+admin.site.register(BandwidthProfile, BandwidthProfileAdmin)
+admin.site.register(ServiceSpoke, ServiceSpokeAdmin)
+admin.site.register(VnodGlobalService, VnodGlobalServiceAdmin)
+admin.site.register(RemotePort, RemotePortAdmin)
+
+
+
+
