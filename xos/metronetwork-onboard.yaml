@@ -7,7 +7,7 @@ imports:
 
 topology_template:
   node_templates:
-    metronetwork:
+     servicecontroller#metronetwork:
       type: tosca.nodes.ServiceController
       properties:
           base_url: file:///opt/xos_services/metro-net/xos/
