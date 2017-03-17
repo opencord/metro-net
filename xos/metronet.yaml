@@ -21,8 +21,66 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 
 
 node_types:
-    
-    tosca.nodes.MetroNetworkSystem:
+
+   tosca.nodes.VNodGlobalService:
+        description: >
+            CORD: The MetroNet Service.
+        derived_from: tosca.nodes.Root
+        capabilities:
+            scalable:
+                type: tosca.capabilities.Scalable
+            service:
+                type: tosca.capabilities.xos.Service
+        properties:
+            no-delete:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to delete this object
+            no-create:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to create this object
+            no-update:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to update this object
+            replaces:
+                type: string
+                required: false
+                descrption: Replaces/renames this object
+            kind:
+                type: string
+                default: generic
+                description: Type of service.
+            view_url:
+                type: string
+                required: false
+                description: URL to follow when icon is clicked in the Service Directory.
+            icon_url:
+                type: string
+                required: false
+                description: ICON to display in the Service Directory.
+            enabled:
+                type: boolean
+                default: true
+            published:
+                type: boolean
+                default: true
+                description: If True then display this Service in the Service Directory.
+            public_key:
+                type: string
+                required: false
+                description: Public key to install into Instances to allows Services to SSH into them.
+            private_key_fn:
+                type: string
+                required: false
+                description: Location of private key file
+            versionNumber:
+                type: string
+                required: false
+                description: Version number of Service.
+
+   tosca.nodes.MetroNetworkSystem:
         derived_from: tosca.nodes.Root
         description: >
             CORD: The Metro Network Service.
@@ -48,6 +106,37 @@ node_types:
                 type: string
                 required: false
                 descrption: Replaces/renames this object
+            kind:
+                type: string
+                default: generic
+                description: Type of service.
+            view_url:
+                type: string
+                required: false
+                description: URL to follow when icon is clicked in the Service Directory.
+            icon_url:
+                type: string
+                required: false
+                description: ICON to display in the Service Directory.
+            enabled:
+                type: boolean
+                default: true
+            published:
+                type: boolean
+                default: true
+                description: If True then display this Service in the Service Directory.
+            public_key:
+                type: string
+                required: false
+                description: Public key to install into Instances to allows Services to SSH into them.
+            private_key_fn:
+                type: string
+                required: false
+                description: Location of private key file
+            versionNumber:
+                type: string
+                required: false
+                description: Version number of Service.
             administrativeState:
                 type: string
                 required: true
@@ -56,7 +145,7 @@ node_types:
                 required: false
 
 
-    tosca.nodes.MetroNetworkDevice:
+   tosca.nodes.MetroNetworkDevice:
         derived_from: tosca.nodes.Root
         description: >
             CORD: The Metro Network Device.
@@ -95,3 +184,49 @@ node_types:
             id:
                 type: string
                 required: true
+
+   tosca.nodes.EcordBandwidthProfile:
+        derived_from: tosca.nodes.Root
+        description: >
+            CORD: The ecord bandwith profile.
+        capabilities:
+            scalable:
+                type: tosca.capabilities.Scalable
+            service:
+                type: tosca.capabilities.xos.Service
+        properties:
+            no-delete:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to delete this object
+            no-create:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to create this object
+            no-update:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to update this object
+            replaces:
+                type: string
+                required: false
+                descrption: Replaces/renames this object
+            bwpcfgcbs:
+                type: integer
+                required: false
+            bwpcfgebs:
+                type: integer
+                required: false
+            bwpcfgcir:
+                type: integer
+                required: false
+            bwpcfgeir:
+                type: integer
+                required: false
+            name:
+                type: string
+                required: true
+
+   tosca.relationships.UsesBandwidthProfile:
+        derived_from: tosca.relationships.Root
+        valid_target_types: [ tosca.capabilities.xos.EcordBandwidthProfile ]
