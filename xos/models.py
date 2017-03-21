@@ -461,3 +461,43 @@ class VnodGlobalService(Service):
 
     def __init__(self, *args, **kwargs):
         super(VnodGlobalService, self).__init__(*args, **kwargs)
+
+
+class UserNetworkInterface(PlCoreBase):
+
+    class Meta:
+        app_label = METRONETWORK_KIND
+        verbose_name = "User Network Interface"
+
+    id = models.AutoField(verbose_name="id", primary_key=True, editable=False)
+    enabled = models.IntegerField(verbose_name="State of UNI", editable=True)
+    capacity = models.IntegerField(verbose_name="UNI Capacity", editable=True)
+    bw_used = models.IntegerField(verbose_name="UNI bandwidth used", editable=True)
+    vlanIds = models.CharField(verbose_name="VlanIds in this UNI", max_length=256, editable=True)
+    location = models.CharField(verbose_name="Location", max_length=256, editable=True, blank=True)
+    latlng = models.CharField(verbose_name="Latitude/Longitude", max_length=50, editable=True, blank=True)
+    name = models.CharField(unique=True, verbose_name="Name", max_length=256, editable=True)
+
+    def __init__(self, *args, **kwargs):
+        super(UserNetworkInterface, self).__init__(*args, **kwargs)
+
+    def __unicode__(self):  return u'%s' % (self.name)
+
+    def save(self, *args, **kwargs):
+
+        if self.latlng:
+            try:
+                latlng_value = getattr(self, 'latlng').strip()
+                if (latlng_value.startswith('[') and latlng_value.endswith(']') and latlng_value.index(',') > 0):
+                    lat = latlng_value[1: latlng_value.index(',')].strip()
+                    lng = latlng_value[latlng_value.index(',') + 1: len(latlng_value) - 1].strip()
+
+                    # If lat and lng are not floats, the code below should result in an error.
+                    lat_validation = float(lat)
+                    lng_validation = float(lng)
+                else:
+                    raise ValueError("The lat/lng value is not formatted correctly.")
+            except:
+                raise ValueError("The lat/lng value is not formatted correctly.")
+
+        super(UserNetworkInterface, self).save(*args, **kwargs)

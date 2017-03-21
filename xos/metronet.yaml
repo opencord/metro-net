@@ -190,10 +190,6 @@ node_types:
         description: >
             CORD: The ecord bandwith profile.
         capabilities:
-            scalable:
-                type: tosca.capabilities.Scalable
-            service:
-                type: tosca.capabilities.xos.Service
         properties:
             no-delete:
                 type: boolean
@@ -226,6 +222,50 @@ node_types:
             name:
                 type: string
                 required: true
+
+   tosca.nodes.EcordUserNetworkInterface:
+        derived_from: tosca.nodes.Root
+        description: >
+            CORD: The ecord user netowrk interface
+        capabilities:
+        properties:
+            no-delete:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to delete this object
+            no-create:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to create this object
+            no-update:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to update this object
+            replaces:
+                type: string
+                required: false
+                descrption: Replaces/renames this object
+            enabled:
+                type: boolean
+                required: false
+            capacity:
+                type: integer
+                required: false
+            bw_used:
+                type: integer
+                required: false
+            vlanIds:
+                type: string
+                required: false
+            name:
+                type: string
+                required: true
+            location:
+                type: string
+                required: false
+            latlng:
+                type: string
+                required: false
 
    tosca.relationships.UsesBandwidthProfile:
         derived_from: tosca.relationships.Root

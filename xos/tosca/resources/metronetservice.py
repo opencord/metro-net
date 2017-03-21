@@ -30,3 +30,8 @@ class XOSMetronetBandwithProficle(XOSResource):
     provides = "tosca.nodes.EcordBandwidthProfile"
     xos_model = BandwidthProfile
     copyin_props = ['bwpcfgcbs','bwpcfgebs','bwpcfgcir','bwpcfgeir','name']
+
+class XOSMetronetUNI(XOSResource):
+    provides = "tosca.nodes.EcordUserNetworkInterface"
+    xos_model = UserNetworkInterface
+    copyin_props = ['enabled','capacity','bw_used','vlanIds', 'location', 'latlng', 'name']

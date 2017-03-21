@@ -397,6 +397,7 @@ class BandwidthProfileSerializer(PlusModelSerializer):
     class Meta:
         model = BandwidthProfile
 
+
         fields = ('humanReadableName',
                   'id',
                   'bwpcfgcbs',
@@ -448,6 +449,71 @@ class BandwidthProfileViewSet(XOSViewSet):
         response_data['bwpcfgcir'] = bandwidthProfile.bwpcfgeir
         response_data['bwpcfgcir'] = bandwidthProfile.bwpcfgcir
         response_data['id'] = bandwidthProfile.id
+
+        return Response(response_data)
+
+class UserNetworkInterfaceSerializer(PlusModelSerializer):
+    humanReadableName = serializers.SerializerMethodField("getHumanReadableName")
+
+    class Meta:
+        model = UserNetworkInterface
+
+        fields = ('humanReadableName',
+                  'id',
+                  'bwpcfgcbs',
+                  'bwpcfgebs',
+                  'bwpcfgcir',
+                  'bwpcfgeir',
+                  'name'
+                  )
+
+    def getHumanReadableName(self, obj):
+        return obj.name
+
+class UserNetworkInterfaceViewSet(XOSViewSet):
+    base_name = "USER_NETWORK_INTERFACE"
+    method_name = "USER_NETWORK_INTERFACE"
+    method_kind = "viewset"
+    queryset = UserNetworkInterface.objects.all()
+    serializer_class = UserNetworkInterfaceSerializer
+
+    @classmethod
+    def get_urlpatterns(self, api_path="^"):
+        patterns = super(UserNetworkInterfaceViewSet, self).get_urlpatterns(api_path=api_path)
+
+        return patterns
+
+    def list(self, request):
+
+        object_list = self.filter_queryset(self.get_queryset())
+
+        serializer = self.get_serializer(object_list, many=True)
+
+        return Response(serializer.data)
+
+    def create(self, validated_data):
+
+        userNetworkInterface = UserNetworkInterface()
+
+        userNetworkInterface.name = validated_data.data.get('name')
+        userNetworkInterface.capacity = validated_data.data.get('capacity')
+        userNetworkInterface.bw_used = validated_data.data.get('bw_used')
+        userNetworkInterface.vlanIds = validated_data.data.get('vlanIds')
+        userNetworkInterface.location = validated_data.data.get('location')
+        userNetworkInterface.latlng = validated_data.data.get('latlng')
+
+        copyin_props = ['enabled', 'capacity', 'bw_used', 'vlanIds', 'location', 'latlng', 'name']
+
+        userNetworkInterface.save()
+
+        response_data = {}
+        response_data['name'] = userNetworkInterface.name
+        response_data['capacity'] = userNetworkInterface.capacity
+        response_data['bw_used'] = userNetworkInterface.bw_used
+        response_data['vlanIds'] = userNetworkInterface.vlanIds
+        response_data['location'] = userNetworkInterface.location
+        response_data['latlng'] = userNetworkInterface.latlng
+        response_data['id'] = userNetworkInterface.id
 
         return Response(response_data)
 

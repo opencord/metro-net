@@ -64,7 +64,6 @@ node_types:
         description: >
             CORD: The ecord bandwith profile.
         capabilities:
-            xos_base_service_caps
         properties:
             xos_base_props
             bwpcfgcbs:
@@ -82,6 +81,35 @@ node_types:
             name:
                 type: string
                 required: true
+
+   tosca.nodes.EcordUserNetworkInterface:
+        derived_from: tosca.nodes.Root
+        description: >
+            CORD: The ecord user netowrk interface
+        capabilities:
+        properties:
+            xos_base_props
+            enabled:
+                type: boolean
+                required: false
+            capacity:
+                type: integer
+                required: false
+            bw_used:
+                type: integer
+                required: false
+            vlanIds:
+                type: string
+                required: false
+            name:
+                type: string
+                required: true
+            location:
+                type: string
+                required: false
+            latlng:
+                type: string
+                required: false
 
    tosca.relationships.UsesBandwidthProfile:
         derived_from: tosca.relationships.Root
