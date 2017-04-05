@@ -1,8 +1,9 @@
 import os, sys
 from itertools import chain
 
-from synchronizers.base.syncstep import SyncStep
-from services.metronetwork.models import *
+from synchronizers.new_base.SyncInstanceUsingAnsible import SyncInstanceUsingAnsible #if needed
+from synchronizers.new_base.ansible_helper import run_template_ssh #if needed
+from synchronizers.new_base.modelaccessor import *
 from xos.logger import Logger, logging
 from synchronizers.metronetwork.providers.providerfactory import ProviderFactory
 from synchronizers.metronetwork.invokers.invokerfactory import InvokerFactory

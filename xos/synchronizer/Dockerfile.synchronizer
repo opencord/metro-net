@@ -1,0 +1,9 @@
+FROM xosproject/xos-synchronizer-base:candidate
+
+ADD . /opt/xos/synchronizers/metro-net
+
+ENTRYPOINT []
+
+WORKDIR "/opt/xos/synchronizers/metro-net"
+
+CMD bash -c "cd /opt/xos/synchronizers/metro-net; ./run-from-api.sh
