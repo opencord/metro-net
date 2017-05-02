@@ -1,0 +1,136 @@
+option name = "metronetwork";
+
+message MetroNetworkSystem (PlCoreBase){
+     option verbose_name = "Metro Network System";
+
+     required string name = 1 [db_index = False, max_length = 256, null = False, blank = False];
+     required string description = 2 [db_index = False, max_length = 1024, null = False, blank = False];
+     required string restUrl = 3 [db_index = False, max_length = 256, null = False, blank = False];
+     required string administrativeState = 4 [default = "disabled", choices = "(('enabled', 'Enabled'), ('disabled', 'Disabled'))", max_length = 16, blank = False, null = False, db_index = False];
+     required string operationalState = 5 [blank = False, max_length = 256, null = False, db_index = False, choices = "(('active', 'Active'), ('inactive', 'Inactive'))"];
+}
+
+message NetworkDevice (PlCoreBase){
+     option verbose_name = "Network Device";
+
+     optional string name = 1 [help_text = "Device friendly name", max_length = 20, null = True, db_index = False, blank = True];
+     required string restCtrlUrl = 2 [db_index = False, max_length = 256, null = False, blank = False];
+     required string authType = 3 [blank = False, max_length = 16, null = False, db_index = False, choices = "(('basic', 'Basic'), ('key', 'Key'), ('oauth', 'OAuth'))"];
+     required string username = 4 [db_index = False, max_length = 32, null = False, blank = True];
+     required string password = 5 [db_index = False, max_length = 32, null = False, blank = True];
+     required string administrativeState = 6 [default = "disabled", choices = "(('enabled', 'Enabled'), ('disabled', 'Disabled'), ('syncrequested', 'SyncRequested'), ('syncinprogress', 'SyncInProgress'))", max_length = 16, blank = False, null = False, db_index = False];
+}
+
+message NetworkEdgePort (PlCoreBase){
+     option verbose_name = "Network Edge Port";
+
+     required manytoone element->NetworkDevice:networkedgeport = 1 [db_index = True, null = False, blank = False];
+     required string pid = 2 [db_index = False, max_length = 256, null = False, blank = False];
+     required int32 bwpCfgCbs = 3 [db_index = False, null = False, blank = True];
+     required int32 bwpCfgEbs = 4 [db_index = False, null = False, blank = True];
+     required int32 bwpCfgCir = 5 [db_index = False, null = False, blank = True];
+     required int32 bwpCfgEir = 6 [db_index = False, null = False, blank = True];
+     required string name = 7 [db_index = False, max_length = 256, null = False, blank = True];
+     required string location = 8 [db_index = False, max_length = 256, null = False, blank = True];
+     required string latlng = 9 [db_index = False, max_length = 50, null = False, blank = True];
+}
+
+
+message NetworkEdgeToEdgePointConnection (Service){
+     option verbose_name = "E-Line Service";
+
+     required string sid = 1 [db_index = False, max_length = 256, null = False, blank = True];
+     required string type = 2 [blank = False, max_length = 256, null = False, db_index = False, choices = "(('direct', 'Direct'), ('tunnel', 'Tunnel'), ('optical', 'Optical'), ('virtual', 'Virtual'), ('Point_To_Point', 'Point To Point'))"];
+     required string vlanid = 3 [db_index = False, max_length = 64, null = False, blank = False];
+     required manytoone uni1->NetworkEdgePort:EdgePointToEdgePointSrc = 4 [db_index = True, null = False, blank = False];
+     required manytoone uni2->NetworkEdgePort:EdgePointToEdgePointDst = 5 [db_index = True, null = False, blank = False];
+     required string operstate = 6 [blank = False, max_length = 256, null = False, db_index = False, choices = "(('active', 'Active'), ('inactive', 'Inactive'))"];
+     required string adminstate = 7 [blank = False, max_length = 256, null = False, db_index = False, choices = "(('disabled', 'Disabled'), ('activationrequested', 'ActivationRequested'), ('enabled', 'Enabled'), ('invalid', 'Invalid'), ('deactivationrequested', 'DeactivationRequested'))"];
+}
+
+
+message NetworkEdgeToMultipointConnection (Service){
+     option verbose_name = "E-Line Service";
+
+     required string sid = 1 [db_index = False, max_length = 256, null = False, blank = True];
+     required string type = 2 [blank = False, max_length = 256, null = False, db_index = False, choices = "(('vlan', 'VLAN'), ('ip', 'IP'), ('ethernet', 'Ethernet'), ('Root_Multipoint', 'Root Multipoint'))"];
+     required string vlanid = 3 [db_index = False, max_length = 64, null = False, blank = False];
+     required manytoone root->NetworkEdgePort:EdgeToMultipointRoot = 4 [db_index = True, null = False, blank = False];
+     required string operstate = 5 [blank = False, max_length = 256, null = False, db_index = False, choices = "(('active', 'Active'), ('inactive', 'Inactive'))"];
+     required string adminstate = 6 [blank = False, max_length = 256, null = False, db_index = False, choices = "(('disabled', 'Disabled'), ('activationrequested', 'ActivationRequested'), ('enabled', 'Enabled'), ('invalid', 'Invalid'), ('deactivationrequested', 'DeactivationRequested'))"];
+     required manytomany eps->NetworkEdgePort/NetworkMultipointToMultipointConnection_eps:networkedgetomultipointconnection_eps = 7 [db_index = False, null = False, blank = False];
+}
+
+
+message NetworkMultipointToMultipointConnection (Service){
+     option verbose_name = "E-LAN Service";
+
+     required string sid = 1 [db_index = False, max_length = 256, null = False, blank = True];
+     required string type = 2 [blank = False, max_length = 256, null = False, db_index = False, choices = "(('vlan', 'VLAN'), ('ip', 'IP'), ('ethernet', 'Ethernet'), ('Multipoint_To_Multipoint', 'Multipoint To Multipoint'))"];
+     required string vlanid = 3 [db_index = False, max_length = 64, null = False, blank = False];
+     required string operstate = 4 [blank = False, max_length = 256, null = False, db_index = False, choices = "(('active', 'Active'), ('inactive', 'Inactive'))"];
+     required string adminstate = 5 [blank = False, max_length = 256, null = False, db_index = False, choices = "(('disabled', 'Disabled'), ('activationrequested', 'ActivationRequested'), ('enabled', 'Enabled'), ('invalid', 'Invalid'), ('deactivationrequested', 'DeactivationRequested'))"];
+     required manytomany eps->NetworkEdgePort/NetworkMultipointToMultipointConnection_eps:networkmultipointtomultipointconnection_eps = 6 [db_index = False, null = False, blank = False];
+}
+
+message BandwidthProfile (PlCoreBase){
+     option verbose_name = "Bandwidth Profile";
+
+     required int32 bwpcfgcbs = 1 [db_index = False, null = False, blank = False];
+     required int32 bwpcfgebs = 2 [db_index = False, null = False, blank = False];
+     required int32 bwpcfgcir = 3 [db_index = False, null = False, blank = False];
+     required int32 bwpcfgeir = 4 [db_index = False, null = False, blank = False];
+     required string name = 5 [db_index = False, max_length = 256, null = False, blank = False];
+}
+
+message RemotePort (PlCoreBase){
+     option verbose_name = "Remote Port";
+
+     required manytoone remoteportsite->Site:RemotePortSite = 1 [db_index = True, null = False, blank = False];
+     required manytoone edgeport->NetworkEdgePort:RemotePortEdgePort = 2 [db_index = True, null = False, blank = False];
+     required string name = 3 [db_index = False, max_length = 256, null = False, blank = False];
+}
+
+
+message ServiceSpoke (PlCoreBase){
+     option verbose_name = "Service Spoke";
+
+     required manytoone vnodlocalsite->Site:VnodLocalSite = 1 [db_index = True, null = False, blank = False];
+     required manytoone vnodlocalport->RemotePort:VnodLocalPort = 2 [db_index = True, null = False, blank = False];
+     required string name = 3 [db_index = False, max_length = 256, null = False, blank = False];
+     required string remotesubscriber = 4 [db_index = False, max_length = 256, null = False, blank = True];
+     required string remotevnodid = 5 [db_index = False, max_length = 256, null = False, blank = True];
+     required bool autoattached = 6 [default = False, null = False, db_index = False, blank = True];
+     required string operstate = 7 [default = "inactive", choices = "(('active', 'Active'), ('inactive', 'Inactive'))", max_length = 256, blank = False, null = False, db_index = False];
+     required string adminstate = 8 [default = "disabled", choices = "(('disabled', 'Disabled'), ('configured', 'Configured'), ('impaired', 'Impaired'), ('enabled', 'Enabled'))", max_length = 64, blank = False, null = False, db_index = False];
+}
+
+message VnodGlobalService (Service){
+     option verbose_name = "Virtual Network On Demand Global Service"; 
+
+     required string servicehandle = 1 [db_index = False, max_length = 64, null = False, blank = False];
+     required string vlanid = 2 [db_index = False, max_length = 64, null = False, blank = False];
+     required string type = 3 [blank = False, max_length = 256, null = False, db_index = False, choices = "(('eline', 'E-Line Service'), ('elan', 'E-LAN Service'), ('etree', 'E-Tree Service'))"];
+     optional manytoone metronetworkroottomultipoint->NetworkEdgeToMultipointConnection:EtreeService = 4 [db_index = True, null = True, blank = False];
+     optional manytoone metronetworkmultipoint->NetworkMultipointToMultipointConnection:ElanService = 5 [db_index = True, null = True, blank = False];
+     optional manytoone metronetworkpointtopoint->NetworkEdgeToEdgePointConnection:ElineService = 6 [db_index = True, null = True, blank = False];
+     required string operstate = 7 [blank = False, max_length = 256, null = False, db_index = False, choices = "(('active', 'Active'), ('inactive', 'Inactive'))"];
+     required string adminstate = 8 [default = "enabled", choices = "(('disabled', 'Disabled'), ('activationrequested', 'ActivationRequested'), ('enabled', 'Enabled'), ('invalid', 'Invalid'), ('deactivationrequested', 'DeactivationRequested'))", max_length = 256, blank = False, null = False, db_index = False];
+     required manytoone bandwidthProfile->BandwidthProfile:BandwidthProfile = 9 [db_index = True, null = False, blank = False];
+     required manytomany spokes->ServiceSpoke/VnodGlobalService_spokes:ServiceSpokes = 10 [db_index = False, null = False, blank = False];
+}
+
+message UserNetworkInterface (PlCoreBase){
+     option verbose_name = "User Network Interface"; 
+
+     required int32 enabled = 1 [db_index = False, null = False, blank = False];
+     required int32 capacity = 2 [db_index = False, null = False, blank = False];
+     required int32 bw_used = 3 [db_index = False, null = False, blank = False];
+     required string vlanIds = 4 [db_index = False, max_length = 256, null = False, blank = False];
+     required string location = 5 [db_index = False, max_length = 256, null = False, blank = True];
+     required string latlng = 6 [db_index = False, max_length = 50, null = False, blank = True];
+     required string name = 7 [db_index = False, max_length = 256, null = False, blank = False];
+}
+
+
+
