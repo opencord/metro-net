@@ -7,110 +7,198 @@ include(macros.m4)
 
 node_types:
 
-   tosca.nodes.VNodGlobalService:
-        description: >
-            CORD: The MetroNet Service.
-        derived_from: tosca.nodes.Root
-        capabilities:
-            xos_base_service_caps
-        properties:
-            xos_base_props
-            xos_base_service_props
-
-   tosca.nodes.MetroNetworkSystem:
-        derived_from: tosca.nodes.Root
-        description: >
-            CORD: The Metro Network Service.
-        capabilities:
-            xos_base_service_caps
-        properties:
-            xos_base_props
-            xos_base_service_props
-            administrativeState:
-                type: string
-                required: true
-            restUrl:
-                type: string
-                required: false
-
-
-   tosca.nodes.MetroNetworkDevice:
-        derived_from: tosca.nodes.Root
-        description: >
-            CORD: The Metro Network Device.
-        properties:
-            xos_base_props
-            restCtrlUrl:
-                type: string
-                required: true
-            username:
-                type: string
-                required: true
-            password:
-                type: string
-                required: true
-            administrativeState:
-                type: string
-                required: true
-            authType:
-                type: string
-                required: false
-            id:
-                type: string
-                required: true
-
-   tosca.nodes.EcordBandwidthProfile:
+    tosca.nodes.BandwidthProfile:
         derived_from: tosca.nodes.Root
         description: >
             CORD: The ecord bandwith profile.
         capabilities:
         properties:
-            xos_base_props
-            bwpcfgcbs:
+            no-delete:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to delete this object
+            no-create:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to create this object
+            no-update:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to update this object
+            replaces:
+                type: string
+                required: false
+                descrption: Replaces/renames this object
+            cbs:
                 type: integer
                 required: false
-            bwpcfgebs:
+            ebs:
                 type: integer
                 required: false
-            bwpcfgcir:
+            cir:
                 type: integer
                 required: false
-            bwpcfgeir:
+            eir:
                 type: integer
                 required: false
             name:
                 type: string
                 required: true
 
-   tosca.nodes.EcordUserNetworkInterface:
+    tosca.nodes.UserNetworkInterface:
         derived_from: tosca.nodes.Root
         description: >
             CORD: The ecord user netowrk interface
         capabilities:
         properties:
-            xos_base_props
-            enabled:
+            no-delete:
                 type: boolean
-                required: false
-            capacity:
-                type: integer
-                required: false
-            bw_used:
-                type: integer
-                required: false
-            vlanIds:
+                default: false
+                description: Do not allow Tosca to delete this object
+            no-create:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to create this object
+            no-update:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to update this object
+            replaces:
                 type: string
                 required: false
+                descrption: Replaces/renames this object
+            cpe_id:
+                type: string
+                required: false
+            tenant:
+                type: string
+                required: true
             name:
                 type: string
                 required: true
-            location:
-                type: string
-                required: false
             latlng:
                 type: string
                 required: false
 
-   tosca.relationships.UsesBandwidthProfile:
-        derived_from: tosca.relationships.Root
-        valid_target_types: [ tosca.capabilities.xos.EcordBandwidthProfile ]
+    tosca.nodes.OnosModel:
+        derived_from: tosca.nodes.Root
+        description: >
+            CORD: The ecord ONOS model
+        capabilities:
+        properties:
+            no-delete:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to delete this object
+            no-create:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to create this object
+            no-update:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to update this object
+            replaces:
+                type: string
+                required: false
+                descrption: Replaces/renames this object
+            name:
+                type: string
+                required: false
+            onos_ip:
+                type: string
+                required: false
+            onos_port:
+                type: integer
+                required: false
+            onos_username:
+                type: string
+                required: false
+            onos_password:
+                type: string
+                required: false
+            onos_type:
+                type: string
+                required: false
+
+    tosca.nodes.EnterpriseLocation:
+        derived_from: tosca.nodes.Root
+        description: >
+            CORD: The ecord enterprise location
+        capabilities:
+        properties:
+            no-delete:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to delete this object
+            no-create:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to create this object
+            no-update:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to update this object
+            replaces:
+                type: string
+                required: false
+                descrption: Replaces/renames this object
+            name:
+                type: string
+                required: false
+            cord_site_ip:
+                type: string
+                required: false
+            cord_site_port:
+                type: integer
+                required: false
+            cord_site_username:
+                type: string
+                required: false
+            cord_site_password:
+                type: string
+                required: false
+            cord_site_type:
+                type: string
+                required: false
+
+    tosca.nodes.ELine:
+        derived_from: tosca.nodes.Root
+        description: >
+            CORD: The ecord Ethernet Virtual Private Line
+        capabilities:
+        properties:
+            no-delete:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to delete this object
+            no-create:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to create this object
+            no-update:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to update this object
+            replaces:
+                type: string
+                required: false
+                descrption: Replaces/renames this object
+            name:
+                type: string
+                required: false
+            connect_point_1_id:
+                type: string
+                required: false
+            connect_point_2_id:
+                type: string
+                required: false
+            vlanids:
+                type: string
+                required: false
+            cord_site_name:
+                type: string
+                required: false
+            bwp:
+                type: string
+                required: false

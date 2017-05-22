@@ -6,4 +6,4 @@ ENTRYPOINT []
 
 WORKDIR "/opt/xos/synchronizers/metro-net"
 
-CMD bash -c "cd /opt/xos/synchronizers/metro-net; ./run-from-api.sh
+CMD bash -c "cd /opt/xos/synchronizers/metro-net; ./run-from-api.sh"

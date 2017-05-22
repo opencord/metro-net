@@ -7,16 +7,16 @@ imports:
 
 topology_template:
   node_templates:
-     servicecontroller#metronetwork:
+     # this is the culprit probably
+     metronet:
       type: tosca.nodes.ServiceController
       properties:
           base_url: file:///opt/xos_services/metro-net/xos/
           # The following will concatenate with base_url automatically, if
           # base_url is non-null.
           xproto: ./
-          admin: admin.py
-          rest_service: subdirectory:metronetworkservice api/service/metronetworkservice/metronetworkservice.py
           synchronizer: synchronizer/manifest
-          synchronizer_run: metronetworkervice-synchronizer.py
-          tosca_resource: tosca/resources/metronetservice.py
+          synchronizer_run: metronetwork-synchronizer.py
           tosca_custom_types: metronet.yaml
+          tosca_resource: tosca/resources/metronetservice.py
+          #admin: admin.py

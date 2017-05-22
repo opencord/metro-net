@@ -1,6 +1,6 @@
 tosca_definitions_version: tosca_simple_yaml_1_0
 
-# compile this with "m4 metronet.m4 > metronet.yaml"
+# compile this with "m4 metronet.m4.old > metronet.yaml"
 
 # include macros
 # Note: Tosca derived_from isn't working the way I think it should, it's not
@@ -22,7 +22,170 @@ tosca_definitions_version: tosca_simple_yaml_1_0
 
 node_types:
 
-    tosca.nodes.BandwidthProfile:
+   tosca.nodes.VNodGlobalService:
+        description: >
+            CORD: The MetroNet Service.
+        derived_from: tosca.nodes.Root
+        capabilities:
+            scalable:
+                type: tosca.capabilities.Scalable
+            service:
+                type: tosca.capabilities.xos.Service
+        properties:
+            no-delete:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to delete this object
+            no-create:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to create this object
+            no-update:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to update this object
+            replaces:
+                type: string
+                required: false
+                descrption: Replaces/renames this object
+            kind:
+                type: string
+                default: generic
+                description: Type of service.
+            view_url:
+                type: string
+                required: false
+                description: URL to follow when icon is clicked in the Service Directory.
+            icon_url:
+                type: string
+                required: false
+                description: ICON to display in the Service Directory.
+            enabled:
+                type: boolean
+                default: true
+            published:
+                type: boolean
+                default: true
+                description: If True then display this Service in the Service Directory.
+            public_key:
+                type: string
+                required: false
+                description: Public key to install into Instances to allows Services to SSH into them.
+            private_key_fn:
+                type: string
+                required: false
+                description: Location of private key file
+            versionNumber:
+                type: string
+                required: false
+                description: Version number of Service.
+
+   tosca.nodes.MetroNetworkSystem:
+        derived_from: tosca.nodes.Root
+        description: >
+            CORD: The Metro Network Service.
+        capabilities:
+            scalable:
+                type: tosca.capabilities.Scalable
+            service:
+                type: tosca.capabilities.xos.Service
+        properties:
+            no-delete:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to delete this object
+            no-create:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to create this object
+            no-update:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to update this object
+            replaces:
+                type: string
+                required: false
+                descrption: Replaces/renames this object
+            kind:
+                type: string
+                default: generic
+                description: Type of service.
+            view_url:
+                type: string
+                required: false
+                description: URL to follow when icon is clicked in the Service Directory.
+            icon_url:
+                type: string
+                required: false
+                description: ICON to display in the Service Directory.
+            enabled:
+                type: boolean
+                default: true
+            published:
+                type: boolean
+                default: true
+                description: If True then display this Service in the Service Directory.
+            public_key:
+                type: string
+                required: false
+                description: Public key to install into Instances to allows Services to SSH into them.
+            private_key_fn:
+                type: string
+                required: false
+                description: Location of private key file
+            versionNumber:
+                type: string
+                required: false
+                description: Version number of Service.
+            administrativeState:
+                type: string
+                required: true
+            restUrl:
+                type: string
+                required: false
+
+
+   tosca.nodes.MetroNetworkDevice:
+        derived_from: tosca.nodes.Root
+        description: >
+            CORD: The Metro Network Device.
+        properties:
+            no-delete:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to delete this object
+            no-create:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to create this object
+            no-update:
+                type: boolean
+                default: false
+                description: Do not allow Tosca to update this object
+            replaces:
+                type: string
+                required: false
+                descrption: Replaces/renames this object
+            restCtrlUrl:
+                type: string
+                required: true
+            username:
+                type: string
+                required: true
+            password:
+                type: string
+                required: true
+            administrativeState:
+                type: string
+                required: true
+            authType:
+                type: string
+                required: false
+            id:
+                type: string
+                required: true
+
+   tosca.nodes.EcordBandwidthProfile:
         derived_from: tosca.nodes.Root
         description: >
             CORD: The ecord bandwith profile.
@@ -44,23 +207,23 @@ node_types:
                 type: string
                 required: false
                 descrption: Replaces/renames this object
-            cbs:
+            bwpcfgcbs:
                 type: integer
                 required: false
-            ebs:
+            bwpcfgebs:
                 type: integer
                 required: false
-            cir:
+            bwpcfgcir:
                 type: integer
                 required: false
-            eir:
+            bwpcfgeir:
                 type: integer
                 required: false
             name:
                 type: string
                 required: true
 
-    tosca.nodes.UserNetworkInterface:
+   tosca.nodes.EcordUserNetworkInterface:
         derived_from: tosca.nodes.Root
         description: >
             CORD: The ecord user netowrk interface
@@ -82,138 +245,28 @@ node_types:
                 type: string
                 required: false
                 descrption: Replaces/renames this object
-            cpe_id:
+            enabled:
+                type: boolean
+                required: false
+            capacity:
+                type: integer
+                required: false
+            bw_used:
+                type: integer
+                required: false
+            vlanIds:
                 type: string
                 required: false
-            tenant:
-                type: string
-                required: true
             name:
                 type: string
                 required: true
+            location:
+                type: string
+                required: false
             latlng:
                 type: string
                 required: false
 
-    tosca.nodes.OnosModel:
-        derived_from: tosca.nodes.Root
-        description: >
-            CORD: The ecord ONOS model
-        capabilities:
-        properties:
-            no-delete:
-                type: boolean
-                default: false
-                description: Do not allow Tosca to delete this object
-            no-create:
-                type: boolean
-                default: false
-                description: Do not allow Tosca to create this object
-            no-update:
-                type: boolean
-                default: false
-                description: Do not allow Tosca to update this object
-            replaces:
-                type: string
-                required: false
-                descrption: Replaces/renames this object
-            name:
-                type: string
-                required: false
-            onos_ip:
-                type: string
-                required: false
-            onos_port:
-                type: integer
-                required: false
-            onos_username:
-                type: string
-                required: false
-            onos_password:
-                type: string
-                required: false
-            onos_type:
-                type: string
-                required: false
-
-    tosca.nodes.EnterpriseLocation:
-        derived_from: tosca.nodes.Root
-        description: >
-            CORD: The ecord enterprise location
-        capabilities:
-        properties:
-            no-delete:
-                type: boolean
-                default: false
-                description: Do not allow Tosca to delete this object
-            no-create:
-                type: boolean
-                default: false
-                description: Do not allow Tosca to create this object
-            no-update:
-                type: boolean
-                default: false
-                description: Do not allow Tosca to update this object
-            replaces:
-                type: string
-                required: false
-                descrption: Replaces/renames this object
-            name:
-                type: string
-                required: false
-            cord_site_ip:
-                type: string
-                required: false
-            cord_site_port:
-                type: integer
-                required: false
-            cord_site_username:
-                type: string
-                required: false
-            cord_site_password:
-                type: string
-                required: false
-            cord_site_type:
-                type: string
-                required: false
-
-    tosca.nodes.ELine:
-        derived_from: tosca.nodes.Root
-        description: >
-            CORD: The ecord Ethernet Virtual Private Line
-        capabilities:
-        properties:
-            no-delete:
-                type: boolean
-                default: false
-                description: Do not allow Tosca to delete this object
-            no-create:
-                type: boolean
-                default: false
-                description: Do not allow Tosca to create this object
-            no-update:
-                type: boolean
-                default: false
-                description: Do not allow Tosca to update this object
-            replaces:
-                type: string
-                required: false
-                descrption: Replaces/renames this object
-            name:
-                type: string
-                required: false
-            connect_point_1_id:
-                type: string
-                required: false
-            connect_point_2_id:
-                type: string
-                required: false
-            vlanids:
-                type: string
-                required: false
-            cord_site_name:
-                type: string
-                required: false
-            bwp:
-                type: string
-                required: false
+   tosca.relationships.UsesBandwidthProfile:
+        derived_from: tosca.relationships.Root
+        valid_target_types: [ tosca.capabilities.xos.EcordBandwidthProfile ]
