@@ -3,7 +3,7 @@
 from django.db import models
 from django.db.models import *
 from core.models import Service
-from core.models import PlCoreBase
+from core.models import XOSBase
 from core.models import Site
 
 METRONETWORK_KIND = "metronetwork"

@@ -1,6 +1,6 @@
 option name = "metronetwork";
 
-message MetroNetworkSystem (PlCoreBase){
+message MetroNetworkSystem (XOSBase){
      option verbose_name = "Metro Network System";
 
      required string name = 1 [db_index = False, max_length = 256, null = False, blank = False];
@@ -10,7 +10,7 @@ message MetroNetworkSystem (PlCoreBase){
      required string operationalState = 5 [blank = False, max_length = 256, null = False, db_index = False, choices = "(('active', 'Active'), ('inactive', 'Inactive'))"];
 }
 
-message NetworkDevice (PlCoreBase){
+message NetworkDevice (XOSBase){
      option verbose_name = "Network Device";
 
      optional string name = 1 [help_text = "Device friendly name", max_length = 20, null = True, db_index = False, blank = True];
@@ -21,7 +21,7 @@ message NetworkDevice (PlCoreBase){
      required string administrativeState = 6 [default = "disabled", choices = "(('enabled', 'Enabled'), ('disabled', 'Disabled'), ('syncrequested', 'SyncRequested'), ('syncinprogress', 'SyncInProgress'))", max_length = 16, blank = False, null = False, db_index = False];
 }
 
-message NetworkEdgePort (PlCoreBase){
+message NetworkEdgePort (XOSBase){
      option verbose_name = "Network Edge Port";
 
      required manytoone element->NetworkDevice:networkedgeport = 1 [db_index = True, null = False, blank = False];
@@ -73,7 +73,7 @@ message NetworkMultipointToMultipointConnection (Service){
      required manytomany eps->NetworkEdgePort/NetworkMultipointToMultipointConnection_eps:networkmultipointtomultipointconnection_eps = 6 [db_index = False, null = False, blank = False];
 }
 
-message BandwidthProfile (PlCoreBase){
+message BandwidthProfile (XOSBase){
      option verbose_name = "Bandwidth Profile";
 
      required int32 bwpcfgcbs = 1 [db_index = False, null = False, blank = False];
@@ -83,7 +83,7 @@ message BandwidthProfile (PlCoreBase){
      required string name = 5 [db_index = False, max_length = 256, null = False, blank = False];
 }
 
-message RemotePort (PlCoreBase){
+message RemotePort (XOSBase){
      option verbose_name = "Remote Port";
 
      required manytoone remoteportsite->Site:RemotePortSite = 1 [db_index = True, null = False, blank = False];
@@ -92,7 +92,7 @@ message RemotePort (PlCoreBase){
 }
 
 
-message ServiceSpoke (PlCoreBase){
+message ServiceSpoke (XOSBase){
      option verbose_name = "Service Spoke";
 
      required manytoone vnodlocalsite->Site:VnodLocalSite = 1 [db_index = True, null = False, blank = False];
@@ -120,7 +120,7 @@ message VnodGlobalService (Service){
      required manytomany spokes->ServiceSpoke/VnodGlobalService_spokes:ServiceSpokes = 10 [db_index = False, null = False, blank = False];
 }
 
-message UserNetworkInterface (PlCoreBase){
+message UserNetworkInterface (XOSBase){
      option verbose_name = "User Network Interface"; 
 
      required int32 enabled = 1 [db_index = False, null = False, blank = False];

@@ -1,0 +1,7 @@
+name: metronetwork-synchronizer
+accessor:
+  username: xosadmin@opencord.org
+  password: "@/opt/xos/services/metro-net/credentials/xosadmin@opencord.org"
+dependency_graph: "/opt/xos/synchronizers/metro-net/model-deps"
+steps_dir: "/opt/xos/synchronizers/metro-net/steps"
+sys_dir: "/opt/xos/synchronizers/metro-net/sys"
