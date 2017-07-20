@@ -1,6 +1,6 @@
 # Sets options for the synchronizer
 [observer]
-name=metronetwork
+name=metro-net
 dependency_graph=/opt/xos/synchronizers/metro-net/model-deps
 steps_dir=/opt/xos/synchronizers/metro-net/steps
 sys_dir=/opt/xos/synchronizers/metro-net/sys

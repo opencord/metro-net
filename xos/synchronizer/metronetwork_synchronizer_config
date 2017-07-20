@@ -22,11 +22,11 @@ mail_support_address=support@localhost
 nova_enabled=True
 
 [observer]
-name=metronetwork
-dependency_graph=/opt/xos/synchronizers/metronetwork/model-deps
-steps_dir=/opt/xos/synchronizers/metronetwork/steps
-sys_dir=/opt/xos/synchronizers/metronetwork/sys
-deleters_dir=/opt/xos/synchronizers/metronetwork/deleters
+name=metro-net
+dependency_graph=/opt/xos/synchronizers/metro-net/model-deps
+steps_dir=/opt/xos/synchronizers/metro-net/steps
+sys_dir=/opt/xos/synchronizers/metro-net/sys
+deleters_dir=/opt/xos/synchronizers/metro-net/deleters
 log_file=console
 driver=None
 pretend=False

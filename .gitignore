@@ -1,1 +1,6 @@
 .idea/
+.DS_Store
+node_modules/
+xos/.DS_Store
+xos/gui/.DS_Store
+xos/gui/src/.DS_Store

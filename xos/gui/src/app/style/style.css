@@ -1,0 +1,12 @@
+ng-map, [map-lazy-load]{
+    height: 600px;
+    width: 100%;
+}
+
+.marker-info > *{
+    color: #000000;
+}
+
+body > ui-view > xos > div > xos-side-panel > section > div:nth-child(1) {
+    display: none;
+}
