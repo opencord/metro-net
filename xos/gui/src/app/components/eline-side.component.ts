@@ -26,6 +26,15 @@ class ElineSide {
       });
   }
 
+  public deleteEline(item: any) {
+    let name = item.name;
+    item.$delete().then((res) => {
+      this.toastr.success(`${name} successfully deleted!`);
+    })
+    .catch((error) => {
+        this.toastr.error(`Error while deleting ${name}: ${error.specific_error}`);
+      });
+  }
 
 }
 

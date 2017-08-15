@@ -10,3 +10,14 @@ ng-map, [map-lazy-load]{
 body > ui-view > xos > div > xos-side-panel > section > div:nth-child(1) {
     display: none;
 }
+
+.elinepanel{
+    height: 100%;
+}
+
+.delete-eline{
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    margin: 10px;
+}

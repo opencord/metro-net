@@ -1,4 +1,4 @@
-<div>
+<div class = "elinepanel">
   <h1>ELine Overview</h1>
   <form ng-submit="vm.saveEline(vm.mng.eline)">
     <div class="form-group" ng-hide="vm.mng.createMode">
@@ -26,7 +26,7 @@
       <select required class="form-control"
               id="bwps"
               ng-model="vm.mng.eline.bwp"
-              ng-options="bwp.name as bwp.name for bwp in vm.mng.bwps"
+              ng-options="bwp.name as bwp.name for bwp in vm.mng.bwps | orderBy: 'name'"
       >
       </select>
     </div>
@@ -43,4 +43,5 @@
     </div>
   </form>
   <button type="button" class="btn btn-danger btn-block" ng-click="vm.mng.elinePanel({}, vm.mng.eline, false)">Close</button>
+  <button type="button" class = "btn btn-danger delete-eline" ng-click="vm.deleteEline(vm.mng.eline)">Delete Eline</button>
 </div>
