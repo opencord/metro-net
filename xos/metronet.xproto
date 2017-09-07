@@ -1,4 +1,5 @@
 option name = "metronetwork";
+option app_label = "metronetwork";
 
 message MetroNetworkSystem (XOSBase){
      option verbose_name = "Metro Network System";
